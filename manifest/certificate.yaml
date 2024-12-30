@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: starlight-sidebar-swipe
+  namespace: starlight-sidebar-swipe
+spec:
+  secretName: starlight-sidebar-swipe
+  issuerRef:
+    name: acme-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - "starlight-sidebar-swipe.trueberryless.org"
