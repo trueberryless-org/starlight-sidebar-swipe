@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: starlight-sidebar-swipe
+  namespace: starlight-sidebar-swipe
+  labels:
+    app: starlight-sidebar-swipe
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: starlight-sidebar-swipe
+  template:
+    metadata:
+      labels:
+        app: starlight-sidebar-swipe
+    spec:
+      containers:
+        - name: starlight-sidebar-swipe
+          image: "trueberryless/starlight-sidebar-swipe"
+          imagePullPolicy: Always

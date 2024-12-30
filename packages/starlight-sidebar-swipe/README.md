@@ -10,6 +10,6 @@ Check out the `starlight-sidebar-swipe` getting started guide.
 
 ## License
 
-Licensed under the MIT License, Copyright © trueberryless.
+Licensed under the MIT license, Copyright © trueberryless.
 
-See [LICENSE](https://github.com/trueberryless-org/starlight-sidebar-swipe/blob/main/LICENSE) for more information.
+See [LICENSE](/LICENSE) for more information.
