@@ -7,7 +7,8 @@ export default defineConfig({
   integrations: [
     starlight({
       editLink: {
-        baseUrl: "https://github.com/trueberryless-org/starlight-sidebar-swipe/edit/main/docs/",
+        baseUrl:
+          "https://github.com/trueberryless-org/starlight-sidebar-swipe/edit/main/docs/",
       },
       plugins: [
         starlightSidebarSwipe(),
@@ -28,6 +29,10 @@ export default defineConfig({
         github: "https://github.com/trueberryless-org/starlight-sidebar-swipe",
       },
       title: "Starlight Sidebar Swipe",
+      customCss: ["./src/styles/swipe.css"],
+      components: {
+        MobileMenuToggle: "./src/components/MobileMenuToggle.astro",
+      },
     }),
   ],
 });
