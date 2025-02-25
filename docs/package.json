@@ -13,9 +13,9 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.30.3",
+    "@astrojs/starlight": "^0.32.1",
     "@trueberryless-org/starlight-plugins-docs-components": "^0.3.0",
-    "astro": "^5.1.1",
+    "astro": "^5.3.1",
     "sharp": "^0.33.5",
     "starlight-sidebar-swipe": "workspace:*"
   },

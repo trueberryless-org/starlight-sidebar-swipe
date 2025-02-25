@@ -6,14 +6,16 @@
   "author": "trueberryless",
   "type": "module",
   "exports": {
-    ".": "./index.ts"
+    ".": "./index.ts",
+    "./overrides/MobileMenuToggle.astro": "./overrides/MobileMenuToggle.astro",
+    "./styles/swipe.css": "./styles/swipe.css"
   },
   "devDependencies": {
-    "@astrojs/starlight": "^0.30.3",
-    "astro": "^5.1.1"
+    "@astrojs/starlight": "^0.32.1",
+    "astro": "^5.3.1"
   },
   "peerDependencies": {
-    "@astrojs/starlight": ">=0.30"
+    "@astrojs/starlight": ">=0.32"
   },
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=21.0.0"

@@ -89,7 +89,15 @@ import { Icon } from '@astrojs/starlight/components';
 		return weightedSum / totalWeight;
 	}
 
+	window.addEventListener("resize", (e) => {
+		if (window.innerWidth >= 800) {
+			mainFrame.style.transition = "none";
+			mainFrame.style.transform = "translateX(0)";
+		}
+	});
+
 	body.addEventListener("mousedown", (e) => {
+		if (window.innerWidth >= 800) return;
 		e.preventDefault();
 		startX = e.clientX;
 		lastX = e.clientX;
