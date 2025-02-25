@@ -17,5 +17,5 @@ spec:
     spec:
       containers:
         - name: starlight-sidebar-swipe
-          image: "trueberryless/starlight-sidebar-swipe"
+          image: "trueberryless/starlight-sidebar-swipe:0.0.2"
           imagePullPolicy: Always
