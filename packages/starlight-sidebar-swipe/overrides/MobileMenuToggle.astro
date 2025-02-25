@@ -14,25 +14,21 @@ import { Icon } from '@astrojs/starlight/components';
 </starlight-menu-button>
 
 <script>
-	
 	const body = document.querySelector("body");
 	const mainFrame = document.querySelector(".main-frame");
-	let startX, lastX, startTime, diffX;
-	let velocitySamples = [];
-	let velocityTimer;
+	let startX: number | undefined, lastX: number | undefined, startTime: number, diffX: number;
+	let velocitySamples: number[] = [];
+	let velocityTimer: NodeJS.Timeout | undefined;
 
 	class StarlightMenuButton extends HTMLElement {
-		btn = this.querySelector('button')!;
+		btn = this.querySelector('button');
 
 		constructor() {
 			super();
 			document.body.toggleAttribute('data-mobile-menu-expanded', true); // must always be active
 			this.setAttribute('aria-expanded', String(true));
 
-			// Toggle `aria-expanded` state when a user clicks the button.
 			this.btn.addEventListener('click', () => this.toggleExpanded());
-
-			// Close the menu when a user presses the escape key.
 			const parentNav = this.closest('nav');
 			if (parentNav) {
 				parentNav.addEventListener('keyup', (e) => this.closeOnEscape(e));
@@ -61,14 +57,13 @@ import { Icon } from '@astrojs/starlight/components';
 
 	customElements.define('starlight-menu-button', StarlightMenuButton);
 
-
-	function calculateVelocity(distance, time) {
+	function calculateVelocity(distance: number, time: number) {
 		const normalizedDistance = distance / 100;
 		const normalizedTime = (time / window.innerWidth) * 100;
 		return Math.abs(normalizedDistance / normalizedTime);
 	}
 
-	function pxToVw(px) {
+	function pxToVw(px: number) {
 		return (px / window.innerWidth) * 100;
 	}
 
@@ -89,18 +84,18 @@ import { Icon } from '@astrojs/starlight/components';
 		return weightedSum / totalWeight;
 	}
 
-	window.addEventListener("resize", (e) => {
+	window.addEventListener("resize", () => {
 		if (window.innerWidth >= 800) {
 			mainFrame.style.transition = "none";
 			mainFrame.style.transform = "translateX(0)";
 		}
 	});
 
-	body.addEventListener("mousedown", (e) => {
+	body.addEventListener("touchstart", (e) => {
 		if (window.innerWidth >= 800) return;
 		e.preventDefault();
-		startX = e.clientX;
-		lastX = e.clientX;
+		startX = e.touches[0].clientX;
+		lastX = e.touches[0].clientX;
 		startTime = Date.now();
 		velocitySamples = [];
 		mainFrame.style.transition = "none";
@@ -108,17 +103,17 @@ import { Icon } from '@astrojs/starlight/components';
 		velocityTimer = setInterval(recordVelocity, 50);
 	});
 
-	body.addEventListener("mousemove", (e) => {
+	body.addEventListener("touchmove", (e) => {
 		if (startX === undefined) return;
-		const currentX = e.clientX;
+		const currentX = e.touches[0].clientX;
 		diffX = pxToVw(currentX - lastX);
 		const currentTransform = parseFloat(mainFrame.style.transform.replace("translateX(", "")) || 0;
 		mainFrame.style.transform = `translateX(${Math.max(Math.min(currentTransform + diffX, 100), 0)}vw)`;
 		lastX = currentX;
 	});
 
-	body.addEventListener("mouseup", swipeEnd);
-	body.addEventListener("mouseleave", swipeEnd);
+	body.addEventListener("touchend", swipeEnd);
+	body.addEventListener("touchcancel", swipeEnd);
 
 	function swipeEnd() {
 		clearInterval(velocityTimer);
