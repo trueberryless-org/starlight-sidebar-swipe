@@ -1,5 +1,11 @@
 # starlight-sidebar-swipe-docs
 
+## 0.0.3
+
+### Patch Changes
+
+- [`deabc26`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/deabc2628f54449f25e6154791509b66bf47be25) Thanks [@trueberryless](https://github.com/trueberryless)! - Interchange mouse events with touch events
+
 ## 0.0.2
 
 ### Patch Changes
