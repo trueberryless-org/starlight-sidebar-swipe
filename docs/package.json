@@ -1,6 +1,6 @@
 {
   "name": "starlight-sidebar-swipe-docs",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "Make sidebar swipeable on mobile devices like Discord Mobile.",
   "homepage": "https://github.com/trueberryless-org/starlight-sidebar-swipe",
