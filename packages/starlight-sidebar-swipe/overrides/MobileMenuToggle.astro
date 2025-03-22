@@ -4,7 +4,7 @@ import { Icon } from '@astrojs/starlight/components';
 
 <starlight-menu-button class="print:hidden">
 	<button
-		aria-expanded="false"
+		aria-expanded="true"
 		aria-label={Astro.locals.t('menuButton.accessibleLabel')}
 		aria-controls="starlight__sidebar"
 		class="sl-flex md:sl-hidden"
@@ -14,18 +14,18 @@ import { Icon } from '@astrojs/starlight/components';
 </starlight-menu-button>
 
 <script>
-	const body = document.querySelector("body");
-	const mainFrame = document.querySelector(".main-frame");
+	const body = document.querySelector("body")!;
+	const mainFrame = document.querySelector(".main-frame")!;
 	let startX: number | undefined, lastX: number | undefined, startTime: number, diffX: number;
 	let velocitySamples: number[] = [];
 	let velocityTimer: NodeJS.Timeout | undefined;
 
 	class StarlightMenuButton extends HTMLElement {
-		btn = this.querySelector('button');
+		btn = this.querySelector('button')!;
 
 		constructor() {
 			super();
-			document.body.toggleAttribute('data-mobile-menu-expanded', true); // must always be active
+			document.body.setAttribute('data-mobile-menu-expanded', String(true));
 			this.setAttribute('aria-expanded', String(true));
 
 			this.btn.addEventListener('click', () => this.toggleExpanded());
@@ -93,7 +93,7 @@ import { Icon } from '@astrojs/starlight/components';
 
 	body.addEventListener("touchstart", (e) => {
 		if (window.innerWidth >= 800) return;
-		e.preventDefault();
+		// e.preventDefault();
 		startX = e.touches[0].clientX;
 		lastX = e.touches[0].clientX;
 		startTime = Date.now();

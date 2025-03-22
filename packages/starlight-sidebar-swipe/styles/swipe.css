@@ -1,6 +1,6 @@
 @media screen and (max-width: 800px) {
   .page {
-    /* overflow: hidden; */
+    overflow: hidden;
   }
   .main-frame {
     background-color: var(--sl-color-black);
