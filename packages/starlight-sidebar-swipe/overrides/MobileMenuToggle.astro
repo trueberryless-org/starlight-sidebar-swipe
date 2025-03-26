@@ -2,6 +2,7 @@
 import { Icon } from '@astrojs/starlight/components';
 ---
 
+<!-- @ts-ignore -->
 <starlight-menu-button class="print:hidden">
 	<button
 		aria-expanded="true"
@@ -14,6 +15,7 @@ import { Icon } from '@astrojs/starlight/components';
 </starlight-menu-button>
 
 <script>
+  // @ts-nocheck
 	const body = document.querySelector("body")!;
 	const mainFrame = document.querySelector(".main-frame")!;
 	let startX: number | undefined, lastX: number | undefined, startTime: number, diffX: number;
