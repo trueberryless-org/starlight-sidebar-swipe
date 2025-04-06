@@ -1,181 +1,194 @@
 ---
-import { Icon } from '@astrojs/starlight/components';
+import { Icon } from "@astrojs/starlight/components";
 ---
 
 <!-- @ts-ignore -->
 <starlight-menu-button class="print:hidden">
-	<button
-		aria-expanded="true"
-		aria-label={Astro.locals.t('menuButton.accessibleLabel')}
-		aria-controls="starlight__sidebar"
-		class="sl-flex md:sl-hidden"
-	>
-		<Icon name="bars" />
-	</button>
+  <button
+    aria-expanded="true"
+    aria-label={Astro.locals.t("menuButton.accessibleLabel")}
+    aria-controls="starlight__sidebar"
+    class="sl-flex md:sl-hidden"
+  >
+    <Icon name="bars" />
+  </button>
 </starlight-menu-button>
 
 <script>
   // @ts-nocheck
-	const body = document.querySelector("body")!;
-	const mainFrame = document.querySelector(".main-frame")!;
-	let startX: number | undefined, lastX: number | undefined, startTime: number, diffX: number;
-	let velocitySamples: number[] = [];
-	let velocityTimer: NodeJS.Timeout | undefined;
+  const body = document.querySelector("body")!;
+  const mainFrame = document.querySelector(".main-frame")!;
+  let startX: number | undefined,
+    lastX: number | undefined,
+    startTime: number,
+    diffX: number;
+  let velocitySamples: number[] = [];
+  let velocityTimer: NodeJS.Timeout | undefined;
 
-	class StarlightMenuButton extends HTMLElement {
-		btn = this.querySelector('button')!;
+  class StarlightMenuButton extends HTMLElement {
+    btn = this.querySelector("button")!;
 
-		constructor() {
-			super();
-			document.body.setAttribute('data-mobile-menu-expanded', String(true));
-			this.setAttribute('aria-expanded', String(true));
+    constructor() {
+      super();
+      document.body.setAttribute("data-mobile-menu-expanded", String(true));
+      this.setAttribute("aria-expanded", String(true));
 
-			this.btn.addEventListener('click', () => this.toggleExpanded());
-			const parentNav = this.closest('nav');
-			if (parentNav) {
-				parentNav.addEventListener('keyup', (e) => this.closeOnEscape(e));
-			}
-		}
+      this.btn.addEventListener("click", () => this.toggleExpanded());
+      const parentNav = this.closest("nav");
+      if (parentNav) {
+        parentNav.addEventListener("keyup", (e) => this.closeOnEscape(e));
+      }
+    }
 
-		setExpanded(expanded: number) {
-			if (expanded === 0) {
-				mainFrame.style.transform = "translateX(100vw)";
-			} else {
-				mainFrame.style.transform = "translateX(0)";
-			}
-		}
+    setExpanded(expanded: number) {
+      if (expanded === 0) {
+        mainFrame.style.transform = "translateX(100vw)";
+      } else {
+        mainFrame.style.transform = "translateX(0)";
+      }
+    }
 
-		toggleExpanded() {
-			this.setExpanded(parseFloat(mainFrame.style.transform.replace("translateX(", "")) || 0);
-		}
+    toggleExpanded() {
+      this.setExpanded(
+        parseFloat(mainFrame.style.transform.replace("translateX(", "")) || 0
+      );
+    }
 
-		closeOnEscape(e: KeyboardEvent) {
-			if (e.code === 'Escape') {
-				this.setExpanded(1);
-				this.btn.focus();
-			}
-		}
-	}
+    closeOnEscape(e: KeyboardEvent) {
+      if (e.code === "Escape") {
+        this.setExpanded(1);
+        this.btn.focus();
+      }
+    }
+  }
 
-	customElements.define('starlight-menu-button', StarlightMenuButton);
+  customElements.define("starlight-menu-button", StarlightMenuButton);
 
-	function calculateVelocity(distance: number, time: number) {
-		const normalizedDistance = distance / 100;
-		const normalizedTime = (time / window.innerWidth) * 100;
-		return Math.abs(normalizedDistance / normalizedTime);
-	}
+  function calculateVelocity(distance: number, time: number) {
+    const normalizedDistance = distance / 100;
+    const normalizedTime = (time / window.innerWidth) * 100;
+    return Math.abs(normalizedDistance / normalizedTime);
+  }
 
-	function pxToVw(px: number) {
-		return (px / window.innerWidth) * 100;
-	}
+  function pxToVw(px: number) {
+    return (px / window.innerWidth) * 100;
+  }
 
-	function recordVelocity() {
-		if (lastX !== undefined && startX !== undefined) {
-			const distance = pxToVw(lastX - startX);
-			const elapsedTime = Date.now() - startTime;
-			const velocity = calculateVelocity(distance, elapsedTime);
-			velocitySamples.push(velocity);
-			if (velocitySamples.length > 5) velocitySamples.shift();
-		}
-	}
+  function recordVelocity() {
+    if (lastX !== undefined && startX !== undefined) {
+      const distance = pxToVw(lastX - startX);
+      const elapsedTime = Date.now() - startTime;
+      const velocity = calculateVelocity(distance, elapsedTime);
+      velocitySamples.push(velocity);
+      if (velocitySamples.length > 5) velocitySamples.shift();
+    }
+  }
 
-	function getWeightedRecentVelocity() {
-		if (velocitySamples.length === 0) return 0;
-		const totalWeight = velocitySamples.reduce((sum, _, index) => sum + (index + 1), 0);
-		const weightedSum = velocitySamples.reduce((sum, velocity, index) => sum + velocity * (index + 1), 0);
-		return weightedSum / totalWeight;
-	}
+  function getWeightedRecentVelocity() {
+    if (velocitySamples.length === 0) return 0;
+    const totalWeight = velocitySamples.reduce(
+      (sum, _, index) => sum + (index + 1),
+      0
+    );
+    const weightedSum = velocitySamples.reduce(
+      (sum, velocity, index) => sum + velocity * (index + 1),
+      0
+    );
+    return weightedSum / totalWeight;
+  }
 
-	window.addEventListener("resize", () => {
-		if (window.innerWidth >= 800) {
-			mainFrame.style.transition = "none";
-			mainFrame.style.transform = "translateX(0)";
-		}
-	});
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 800) {
+      mainFrame.style.transition = "none";
+      mainFrame.style.transform = "translateX(0)";
+    }
+  });
 
-	body.addEventListener("touchstart", (e) => {
-		if (window.innerWidth >= 800) return;
-		// e.preventDefault();
-		startX = e.touches[0].clientX;
-		lastX = e.touches[0].clientX;
-		startTime = Date.now();
-		velocitySamples = [];
-		mainFrame.style.transition = "none";
-		clearInterval(velocityTimer);
-		velocityTimer = setInterval(recordVelocity, 50);
-	});
+  body.addEventListener("touchstart", (e) => {
+    if (window.innerWidth >= 800) return;
+    // e.preventDefault();
+    startX = e.touches[0].clientX;
+    lastX = e.touches[0].clientX;
+    startTime = Date.now();
+    velocitySamples = [];
+    mainFrame.style.transition = "none";
+    clearInterval(velocityTimer);
+    velocityTimer = setInterval(recordVelocity, 50);
+  });
 
-	body.addEventListener("touchmove", (e) => {
-		if (startX === undefined) return;
-		const currentX = e.touches[0].clientX;
-		diffX = pxToVw(currentX - lastX);
-		const currentTransform = parseFloat(mainFrame.style.transform.replace("translateX(", "")) || 0;
-		mainFrame.style.transform = `translateX(${Math.max(Math.min(currentTransform + diffX, 100), 0)}vw)`;
-		lastX = currentX;
-	});
+  body.addEventListener("touchmove", (e) => {
+    if (startX === undefined) return;
+    const currentX = e.touches[0].clientX;
+    diffX = pxToVw(currentX - lastX);
+    const currentTransform =
+      parseFloat(mainFrame.style.transform.replace("translateX(", "")) || 0;
+    mainFrame.style.transform = `translateX(${Math.max(Math.min(currentTransform + diffX, 100), 0)}vw)`;
+    lastX = currentX;
+  });
 
-	body.addEventListener("touchend", swipeEnd);
-	body.addEventListener("touchcancel", swipeEnd);
+  body.addEventListener("touchend", swipeEnd);
+  body.addEventListener("touchcancel", swipeEnd);
 
-	function swipeEnd() {
-		clearInterval(velocityTimer);
-		const currentTransform = parseFloat(mainFrame.style.transform.replace("translateX(", "")) || 0;
-		const recentVelocity = getWeightedRecentVelocity();
-		mainFrame.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
+  function swipeEnd() {
+    clearInterval(velocityTimer);
+    const currentTransform =
+      parseFloat(mainFrame.style.transform.replace("translateX(", "")) || 0;
+    const recentVelocity = getWeightedRecentVelocity();
+    mainFrame.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
 
-		if (recentVelocity > 0.005 && diffX > 0) {
-			mainFrame.style.transform = "translateX(100vw)";
-		} else if (recentVelocity > 0.005 && diffX < 0) {
-			mainFrame.style.transform = "translateX(0)";
-		} else if (currentTransform > 50) {
-			mainFrame.style.transform = "translateX(100vw)";
-		} else {
-			mainFrame.style.transform = "translateX(0)";
-		}
-		startX = undefined;
-	}
+    if (recentVelocity > 0.005 && diffX > 0) {
+      mainFrame.style.transform = "translateX(100vw)";
+    } else if (recentVelocity > 0.005 && diffX < 0) {
+      mainFrame.style.transform = "translateX(0)";
+    } else if (currentTransform > 50) {
+      mainFrame.style.transform = "translateX(100vw)";
+    } else {
+      mainFrame.style.transform = "translateX(0)";
+    }
+    startX = undefined;
+  }
 </script>
 
 <style>
-	button {
-		position: fixed;
-		top: calc((var(--sl-nav-height) - var(--sl-menu-button-size)) / 2);
-		inset-inline-end: var(--sl-nav-pad-x);
-		z-index: var(--sl-z-index-navbar);
-		border: 0;
-		border-radius: 50%;
-		width: var(--sl-menu-button-size);
-		height: var(--sl-menu-button-size);
-		padding: 0.5rem;
-		background-color: var(--sl-color-white);
-		color: var(--sl-color-black);
-		box-shadow: var(--sl-shadow-md);
-		cursor: pointer;
-	}
+  button {
+    position: fixed;
+    top: calc((var(--sl-nav-height) - var(--sl-menu-button-size)) / 2);
+    inset-inline-end: var(--sl-nav-pad-x);
+    z-index: var(--sl-z-index-navbar);
+    border: 0;
+    border-radius: 50%;
+    width: var(--sl-menu-button-size);
+    height: var(--sl-menu-button-size);
+    padding: 0.5rem;
+    background-color: var(--sl-color-white);
+    color: var(--sl-color-black);
+    box-shadow: var(--sl-shadow-md);
+    cursor: pointer;
+  }
 
-	[aria-expanded='true'] button {
-		background-color: var(--sl-color-gray-2);
-		box-shadow: none;
-	}
+  [aria-expanded="true"] button {
+    background-color: var(--sl-color-gray-2);
+    box-shadow: none;
+  }
 
-	:global([data-theme='light']) button {
-		background-color: var(--sl-color-black);
-		color: var(--sl-color-white);
-	}
+  :global([data-theme="light"]) button {
+    background-color: var(--sl-color-black);
+    color: var(--sl-color-white);
+  }
 
-	:global([data-theme='light']) [aria-expanded='true'] button {
-		background-color: var(--sl-color-gray-5);
-	}
+  :global([data-theme="light"]) [aria-expanded="true"] button {
+    background-color: var(--sl-color-gray-5);
+  }
 </style>
 
 <style is:global>
-	[data-mobile-menu-expanded] {
-		overflow: hidden;
-	}
+  [data-mobile-menu-expanded] {
+    overflow: hidden;
+  }
 
-	@media (min-width: 50rem) {
-		[data-mobile-menu-expanded] {
-			overflow: auto;
-		}
-	}
+  @media (min-width: 50rem) {
+    [data-mobile-menu-expanded] {
+      overflow: auto;
+    }
+  }
 </style>
