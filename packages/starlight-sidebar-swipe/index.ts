@@ -7,7 +7,6 @@ export default function starlightSidebarSwipe(): StarlightPlugin {
     name: "starlight-sidebar-swipe",
     hooks: {
       "config:setup"({
-        addIntegration,
         updateConfig: updateStarlightConfig,
         config: starlightConfig,
         logger,
@@ -21,7 +20,10 @@ export default function starlightSidebarSwipe(): StarlightPlugin {
               "MobileMenuToggle"
             ),
           },
-          customCss: ["starlight-sidebar-swipe/styles/swipe.css"],
+          customCss: [
+            ...(starlightConfig.customCss ?? []),
+            "starlight-sidebar-swipe/styles/swipe.css",
+          ],
         });
       },
     },
