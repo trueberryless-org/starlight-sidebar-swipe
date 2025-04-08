@@ -2,61 +2,60 @@
 import { Icon } from "@astrojs/starlight/components";
 ---
 
-<!-- @ts-ignore -->
 <starlight-menu-button class="print:hidden">
   <button
-    aria-expanded="true"
+    aria-expanded="false"
     aria-label={Astro.locals.t("menuButton.accessibleLabel")}
     aria-controls="starlight__sidebar"
     class="sl-flex md:sl-hidden"
   >
-    <Icon name="bars" />
+    <Icon name="bars" class="open-menu" />
+    <Icon name="close" class="close-menu" />
   </button>
 </starlight-menu-button>
 
 <script>
-  // @ts-nocheck
-  const body = document.querySelector("body")!;
-  const mainFrame = document.querySelector(".main-frame")!;
-  let startX: number | undefined,
-    lastX: number | undefined,
-    startTime: number,
-    diffX: number;
-  let velocitySamples: number[] = [];
-  let velocityTimer: NodeJS.Timeout | undefined;
+  const body = document.querySelector("body");
+  const mainFrame = document.querySelector(".main-frame");
+  let startX, lastX, startTime, diffX;
+  let velocitySamples = [];
+  let velocityTimer;
 
   class StarlightMenuButton extends HTMLElement {
-    btn = this.querySelector("button")!;
+    btn = this.querySelector("button");
 
     constructor() {
       super();
-      document.body.setAttribute("data-mobile-menu-expanded", String(true));
-      this.setAttribute("aria-expanded", String(true));
-
+      // Toggle `aria-expanded` state when a user clicks the button.
       this.btn.addEventListener("click", () => this.toggleExpanded());
+      // Close the menu when a user presses the escape key.
       const parentNav = this.closest("nav");
       if (parentNav) {
         parentNav.addEventListener("keyup", (e) => this.closeOnEscape(e));
       }
     }
 
-    setExpanded(expanded: number) {
-      if (expanded === 0) {
-        mainFrame.style.transform = "translateX(100vw)";
-      } else {
-        mainFrame.style.transform = "translateX(0)";
+    setExpanded(expanded) {
+      this.setAttribute("aria-expanded", String(expanded));
+      document.body.toggleAttribute("data-mobile-menu-expanded", expanded);
+
+      // Update the transform of mainFrame based on menu state
+      if (mainFrame) {
+        if (expanded) {
+          mainFrame.style.transform = "translateX(100vw)";
+        } else {
+          mainFrame.style.transform = "translateX(0)";
+        }
       }
     }
 
     toggleExpanded() {
-      this.setExpanded(
-        parseFloat(mainFrame.style.transform.replace("translateX(", "")) || 0
-      );
+      this.setExpanded(this.getAttribute("aria-expanded") !== "true");
     }
 
-    closeOnEscape(e: KeyboardEvent) {
+    closeOnEscape(e) {
       if (e.code === "Escape") {
-        this.setExpanded(1);
+        this.setExpanded(false);
         this.btn.focus();
       }
     }
@@ -64,13 +63,13 @@ import { Icon } from "@astrojs/starlight/components";
 
   customElements.define("starlight-menu-button", StarlightMenuButton);
 
-  function calculateVelocity(distance: number, time: number) {
+  function calculateVelocity(distance, time) {
     const normalizedDistance = distance / 100;
     const normalizedTime = (time / window.innerWidth) * 100;
     return Math.abs(normalizedDistance / normalizedTime);
   }
 
-  function pxToVw(px: number) {
+  function pxToVw(px) {
     return (px / window.innerWidth) * 100;
   }
 
@@ -97,55 +96,79 @@ import { Icon } from "@astrojs/starlight/components";
     return weightedSum / totalWeight;
   }
 
+  // Skip swipe functionality on desktop
   window.addEventListener("resize", () => {
-    if (window.innerWidth >= 800) {
+    if (window.innerWidth >= 800 && mainFrame) {
       mainFrame.style.transition = "none";
       mainFrame.style.transform = "translateX(0)";
     }
   });
 
-  body.addEventListener("touchstart", (e) => {
-    if (window.innerWidth >= 800) return;
-    // e.preventDefault();
-    startX = e.touches[0].clientX;
-    lastX = e.touches[0].clientX;
-    startTime = Date.now();
-    velocitySamples = [];
-    mainFrame.style.transition = "none";
-    clearInterval(velocityTimer);
-    velocityTimer = setInterval(recordVelocity, 50);
-  });
+  if (body && mainFrame) {
+    body.addEventListener("touchstart", (e) => {
+      if (window.innerWidth >= 800) return;
 
-  body.addEventListener("touchmove", (e) => {
-    if (startX === undefined) return;
-    const currentX = e.touches[0].clientX;
-    diffX = pxToVw(currentX - lastX);
-    const currentTransform =
-      parseFloat(mainFrame.style.transform.replace("translateX(", "")) || 0;
-    mainFrame.style.transform = `translateX(${Math.max(Math.min(currentTransform + diffX, 100), 0)}vw)`;
-    lastX = currentX;
-  });
+      startX = e.touches[0].clientX;
+      lastX = e.touches[0].clientX;
+      startTime = Date.now();
+      velocitySamples = [];
+      mainFrame.style.transition = "none";
+      clearInterval(velocityTimer);
+      velocityTimer = setInterval(recordVelocity, 50);
+    });
 
-  body.addEventListener("touchend", swipeEnd);
-  body.addEventListener("touchcancel", swipeEnd);
+    body.addEventListener("touchmove", (e) => {
+      if (startX === undefined || !mainFrame) return;
 
-  function swipeEnd() {
-    clearInterval(velocityTimer);
-    const currentTransform =
-      parseFloat(mainFrame.style.transform.replace("translateX(", "")) || 0;
-    const recentVelocity = getWeightedRecentVelocity();
-    mainFrame.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
+      const currentX = e.touches[0].clientX;
+      diffX = pxToVw(currentX - lastX);
+      const currentTransform =
+        parseFloat(mainFrame.style.transform?.replace("translateX(", "")) || 0;
 
-    if (recentVelocity > 0.005 && diffX > 0) {
-      mainFrame.style.transform = "translateX(100vw)";
-    } else if (recentVelocity > 0.005 && diffX < 0) {
-      mainFrame.style.transform = "translateX(0)";
-    } else if (currentTransform > 50) {
-      mainFrame.style.transform = "translateX(100vw)";
-    } else {
-      mainFrame.style.transform = "translateX(0)";
+      mainFrame.style.transform = `translateX(${Math.max(
+        Math.min(currentTransform + diffX, 100),
+        0
+      )}vw)`;
+
+      lastX = currentX;
+    });
+
+    body.addEventListener("touchend", swipeEnd);
+    body.addEventListener("touchcancel", swipeEnd);
+
+    function swipeEnd() {
+      if (!mainFrame) return;
+
+      clearInterval(velocityTimer);
+      const currentTransform =
+        parseFloat(mainFrame.style.transform?.replace("translateX(", "")) || 0;
+      const recentVelocity = getWeightedRecentVelocity();
+      mainFrame.style.transition =
+        "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
+
+      // Update menu button state based on swipe
+      const menuButton = document.querySelector("starlight-menu-button");
+
+      if (recentVelocity > 0.005 && diffX > 0) {
+        mainFrame.style.transform = "translateX(100vw)";
+        if (menuButton) menuButton.setAttribute("aria-expanded", "true");
+        document.body.toggleAttribute("data-mobile-menu-expanded", true);
+      } else if (recentVelocity > 0.005 && diffX < 0) {
+        mainFrame.style.transform = "translateX(0)";
+        if (menuButton) menuButton.setAttribute("aria-expanded", "false");
+        document.body.toggleAttribute("data-mobile-menu-expanded", false);
+      } else if (currentTransform > 50) {
+        mainFrame.style.transform = "translateX(100vw)";
+        if (menuButton) menuButton.setAttribute("aria-expanded", "true");
+        document.body.toggleAttribute("data-mobile-menu-expanded", true);
+      } else {
+        mainFrame.style.transform = "translateX(0)";
+        if (menuButton) menuButton.setAttribute("aria-expanded", "false");
+        document.body.toggleAttribute("data-mobile-menu-expanded", false);
+      }
+
+      startX = undefined;
     }
-    startX = undefined;
   }
 </script>
 
@@ -169,6 +192,14 @@ import { Icon } from "@astrojs/starlight/components";
   [aria-expanded="true"] button {
     background-color: var(--sl-color-gray-2);
     box-shadow: none;
+  }
+
+  [aria-expanded="true"] button .open-menu {
+    display: none;
+  }
+
+  :not([aria-expanded="true"]) button .close-menu {
+    display: none;
   }
 
   :global([data-theme="light"]) button {
