@@ -25,9 +25,13 @@ export default defineConfig({
           items: [{ slug: "getting-started" }],
         },
       ],
-      social: {
-        github: "https://github.com/trueberryless-org/starlight-sidebar-swipe",
-      },
+      social: [
+        {
+          icon: "github",
+          label: "GitHub",
+          href: "https://github.com/trueberryless-org/starlight-sidebar-swipe",
+        },
+      ],
       title: "Starlight Sidebar Swipe",
     }),
   ],
