@@ -1,7 +1,7 @@
 import starlight from "@astrojs/starlight";
+import starlightPluginsDocsComponents from "@trueberryless-org/starlight-plugins-docs-components";
 import { defineConfig } from "astro/config";
 import starlightSidebarSwipe from "starlight-sidebar-swipe";
-import starlightPluginsDocsComponents from "@trueberryless-org/starlight-plugins-docs-components";
 
 export default defineConfig({
   integrations: [
