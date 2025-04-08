@@ -4,12 +4,20 @@ description: Make sidebar swipeable on mobile devices like Discord Mobile.
 head:
   - tag: title
     content: Starlight Sidebar Swipe
+  - tag: style
+    content: |
+      .hero-html {
+        --size: 12rem;
+        font-size: var(--size);
+        justify-content: center;
+        line-height: var(--size);
+      }
 template: splash
 editUrl: false
 hero:
   tagline: Make sidebar swipeable on mobile devices like Discord Mobile.
   image:
-    file: ../../assets/houston.webp
+    html: "➡️"
   actions:
     - text: Get Started
       link: /getting-started/
