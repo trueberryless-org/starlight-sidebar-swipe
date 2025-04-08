@@ -1,5 +1,11 @@
 # starlight-sidebar-swipe
 
+## 0.2.0
+
+### Minor Changes
+
+- [`da765ec`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/da765ec277945927ff8af809495d22ac382fbebe) Thanks [@trueberryless](https://github.com/trueberryless)! - Initial public release
+
 ## 0.1.0
 
 ### Minor Changes
