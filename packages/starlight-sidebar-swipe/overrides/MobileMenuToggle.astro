@@ -17,9 +17,14 @@ import { Icon } from "@astrojs/starlight/components";
 <script>
   const body = document.querySelector("body");
   const mainFrame = document.querySelector(".main-frame");
-  let startX, lastX, startTime, diffX;
+  let startX, lastX, startY, lastY, startTime, diffX;
   let velocitySamples = [];
   let velocityTimer;
+  let isScrollingHorizontally = false;
+  let isTouchActive = false;
+
+  // Threshold to determine horizontal vs vertical scrolling (in pixels)
+  const DIRECTION_THRESHOLD = 10;
 
   class StarlightMenuButton extends HTMLElement {
     btn = this.querySelector("button");
@@ -96,6 +101,15 @@ import { Icon } from "@astrojs/starlight/components";
     return weightedSum / totalWeight;
   }
 
+  // Determine if the scroll is primarily horizontal or vertical
+  function determineScrollDirection(deltaX, deltaY) {
+    // If horizontal movement is significantly greater than vertical, consider it horizontal
+    return (
+      Math.abs(deltaX) > Math.abs(deltaY) &&
+      Math.abs(deltaX) > DIRECTION_THRESHOLD
+    );
+  }
+
   // Skip swipe functionality on desktop
   window.addEventListener("resize", () => {
     if (window.innerWidth >= 800 && mainFrame) {
@@ -110,27 +124,54 @@ import { Icon } from "@astrojs/starlight/components";
 
       startX = e.touches[0].clientX;
       lastX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      lastY = e.touches[0].clientY;
       startTime = Date.now();
       velocitySamples = [];
-      mainFrame.style.transition = "none";
+      isScrollingHorizontally = false;
+      isTouchActive = true;
+
+      // Don't immediately apply no-transition, wait to determine direction
       clearInterval(velocityTimer);
       velocityTimer = setInterval(recordVelocity, 50);
     });
 
     body.addEventListener("touchmove", (e) => {
-      if (startX === undefined || !mainFrame) return;
+      if (!isTouchActive || !mainFrame) return;
 
       const currentX = e.touches[0].clientX;
-      diffX = pxToVw(currentX - lastX);
-      const currentTransform =
-        parseFloat(mainFrame.style.transform?.replace("translateX(", "")) || 0;
+      const currentY = e.touches[0].clientY;
+      const deltaX = currentX - startX;
+      const deltaY = currentY - lastY;
 
-      mainFrame.style.transform = `translateX(${Math.max(
-        Math.min(currentTransform + diffX, 100),
-        0
-      )}vw)`;
+      // Only on first significant movement, determine scroll direction
+      if (!isScrollingHorizontally && !isScrollingVertically) {
+        isScrollingHorizontally = determineScrollDirection(
+          deltaX,
+          currentY - startY
+        );
+
+        // Only apply no-transition if we're scrolling horizontally
+        if (isScrollingHorizontally) {
+          mainFrame.style.transition = "none";
+        }
+      }
+
+      // Only move the sidebar if we've determined this is a horizontal scroll
+      if (isScrollingHorizontally) {
+        diffX = pxToVw(currentX - lastX);
+        const currentTransform =
+          parseFloat(mainFrame.style.transform?.replace("translateX(", "")) ||
+          0;
+
+        mainFrame.style.transform = `translateX(${Math.max(
+          Math.min(currentTransform + diffX, 100),
+          0
+        )}vw)`;
+      }
 
       lastX = currentX;
+      lastY = currentY;
     });
 
     body.addEventListener("touchend", swipeEnd);
@@ -138,6 +179,13 @@ import { Icon } from "@astrojs/starlight/components";
 
     function swipeEnd() {
       if (!mainFrame) return;
+      isTouchActive = false;
+
+      // Only process horizontal swipes
+      if (!isScrollingHorizontally) {
+        isScrollingHorizontally = false;
+        return;
+      }
 
       clearInterval(velocityTimer);
       const currentTransform =
@@ -168,7 +216,22 @@ import { Icon } from "@astrojs/starlight/components";
       }
 
       startX = undefined;
+      isScrollingHorizontally = false;
     }
+
+    // Reset flags if touch is canceled
+    let isScrollingVertically = false;
+
+    // Add this to help determine when user is primarily scrolling vertically
+    body.addEventListener(
+      "scroll",
+      () => {
+        if (isTouchActive && !isScrollingHorizontally) {
+          isScrollingVertically = true;
+        }
+      },
+      { passive: true }
+    );
   }
 </script>
 
