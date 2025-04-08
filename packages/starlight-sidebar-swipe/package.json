@@ -5,6 +5,13 @@
   "description": "Make sidebar swipeable on mobile devices like Discord Mobile.",
   "author": "trueberryless",
   "type": "module",
+  "keywords": [
+    "starlight",
+    "sidebar",
+    "swipe",
+    "mobile",
+    "discord"
+  ],
   "exports": {
     ".": "./index.ts",
     "./overrides/MobileMenuToggle.astro": "./overrides/MobileMenuToggle.astro",
