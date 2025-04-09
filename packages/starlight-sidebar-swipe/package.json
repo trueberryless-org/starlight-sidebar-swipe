@@ -1,6 +1,6 @@
 {
   "name": "starlight-sidebar-swipe",
-  "version": "0.2.0",
+  "version": "0.0.2",
   "license": "MIT",
   "description": "Make sidebar swipeable on mobile devices like Discord Mobile.",
   "author": "trueberryless",
@@ -22,7 +22,7 @@
     "astro": "^5.6.1"
   },
   "peerDependencies": {
-    "@astrojs/starlight": ">=0.32"
+    "@astrojs/starlight": ">=0.30"
   },
   "engines": {
     "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
