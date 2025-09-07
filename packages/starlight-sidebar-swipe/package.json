@@ -27,7 +27,7 @@
     "./styles/swipe.css": "./styles/swipe.css"
   },
   "devDependencies": {
-    "@astrojs/starlight": "^0.33.0",
+    "@astrojs/starlight": "^0.35.2",
     "astro": "^5.6.1"
   },
   "peerDependencies": {
