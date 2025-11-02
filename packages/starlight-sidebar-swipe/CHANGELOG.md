@@ -1,5 +1,11 @@
 # starlight-sidebar-swipe
 
+## 0.1.1
+
+### Patch Changes
+
+- [#28](https://github.com/trueberryless-org/starlight-sidebar-swipe/pull/28) [`dfc1b57`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/dfc1b57f37d11f5546d0480098dbdc157d74a180) Thanks [@trueberryless-org](https://github.com/apps/trueberryless-org)! - Setups trusted publishing using OpenID Connect (OIDC) authentication — no code changes.
+
 ## 0.1.0
 
 ### Minor Changes
