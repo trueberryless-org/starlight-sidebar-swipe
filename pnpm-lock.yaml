@@ -35,12 +35,12 @@ importers:
       astro:
         specifier: ^6.0.5
         version: 6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2)
+      astro-contributors:
+        specifier: ^0.6.0
+        version: 0.6.0(astro@6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2))
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
-      starlight-contributor-list:
-        specifier: ^0.4.0
-        version: 0.4.0(astro@6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2))
       starlight-links-validator:
         specifier: ^0.20.1
         version: 0.20.1(@astrojs/starlight@0.38.1(astro@6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2)))(astro@6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2))
@@ -926,6 +926,12 @@ packages:
   astring@1.9.0:
     resolution: {integrity: sha512-LElXdjswlqjWrPpJFg1Fx4wpkOCxj1TDHlSV4PlaRxHGWko024xICaa97ZkMfs6DRKlCguiAI+rbXv5GWwXIkg==}
     hasBin: true
+
+  astro-contributors@0.6.0:
+    resolution: {integrity: sha512-M8VvJwuluW80YxDaUHF1t67RuIjuSC9hOzznPFm8pQDdXpQsIPo9I6mzBKMrdksBPDElhC4+3kFdzjNMH1j7Hw==}
+    engines: {node: '>=22.12.0'}
+    peerDependencies:
+      astro: ^5.0.0
 
   astro-expressive-code@0.41.7:
     resolution: {integrity: sha512-hUpogGc6DdAd+I7pPXsctyYPRBJDK7Q7d06s4cyP0Vz3OcbziP3FNzN0jZci1BpCvLn9675DvS7B9ctKKX64JQ==}
@@ -2052,13 +2058,6 @@ packages:
 
   sprintf-js@1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
-
-  starlight-contributor-list@0.4.0:
-    resolution: {integrity: sha512-iQQMGIhv8ef995UlKeTwuFC85QQBEIVjh2oXu2IszNQhFUd1cLMYwoJymhtPv7fFrrh+3ezsLAq4IRS/o7CXQg==}
-    engines: {node: '>=22.12.0'}
-    deprecated: 'This package is no longer maintained. Please upgrade to the new package: https://www.npmjs.com/package/astro-contributors'
-    peerDependencies:
-      astro: ^5.0.0
 
   starlight-links-validator@0.20.1:
     resolution: {integrity: sha512-bPfX9tlvkLcygIwo4nszOf7TOj1iqfZEpUss5oxRlaa3/mt7zGBHANSkanVMd0FK6VQa2oUD9MjH1DszykkwPA==}
@@ -3300,6 +3299,10 @@ snapshots:
   array-union@2.1.0: {}
 
   astring@1.9.0: {}
+
+  astro-contributors@0.6.0(astro@6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2)):
+    dependencies:
+      astro: 6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2)
 
   astro-expressive-code@0.41.7(astro@6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2)):
     dependencies:
@@ -5028,10 +5031,6 @@ snapshots:
       signal-exit: 4.1.0
 
   sprintf-js@1.0.3: {}
-
-  starlight-contributor-list@0.4.0(astro@6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2)):
-    dependencies:
-      astro: 6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2)
 
   starlight-links-validator@0.20.1(@astrojs/starlight@0.38.1(astro@6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2)))(astro@6.0.5(@types/node@24.12.0)(rollup@4.55.1)(typescript@5.7.2)):
     dependencies:
