@@ -1,6 +1,7 @@
 import starlight from "@astrojs/starlight";
 import starlightPluginsDocsComponents from "@trueberryless-org/starlight-plugins-docs-components";
 import { defineConfig } from "astro/config";
+import starlightLinksValidator from "starlight-links-validator";
 import starlightSidebarSwipe from "starlight-sidebar-swipe";
 
 export default defineConfig({
@@ -18,6 +19,7 @@ export default defineConfig({
             entries: [],
           },
         }),
+        starlightLinksValidator(),
       ],
       sidebar: [
         {
