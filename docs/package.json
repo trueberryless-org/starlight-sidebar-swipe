@@ -23,12 +23,12 @@
     "start": "astro dev"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.38.1",
+    "@astrojs/starlight": "^0.38.5",
     "@trueberryless-org/starlight-plugins-docs-components": "^0.5.0",
-    "astro": "^6.0.5",
-    "astro-contributors": "^0.6.0",
+    "astro": "^6.2.2",
+    "astro-contributors": "^0.8.0",
     "sharp": "^0.34.5",
-    "starlight-links-validator": "^0.20.1",
+    "starlight-links-validator": "^0.24.0",
     "starlight-sidebar-swipe": "workspace:*"
   },
   "packageManager": "pnpm@10.10.0",
