@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "private": true,
   "description": "Make sidebar swipeable on mobile devices like Discord Mobile.",
-  "homepage": "https://starlight-sidebar-swipe.trueberryless.org",
+  "homepage": "https://starlight-sidebar-swipe.netlify.app/",
   "bugs": {
     "url": "https://github.com/trueberryless-org/starlight-sidebar-swipe/issues"
   },
@@ -13,7 +13,7 @@
     "directory": "docs"
   },
   "license": "MIT",
-  "author": "trueberryless <trueberryless@gmail.com> (https://trueberryless.org)",
+  "author": "trueberryless <trueberryless@gmail.com> (https://felixs.dev)",
   "type": "module",
   "scripts": {
     "astro": "astro",
