@@ -1,5 +1,15 @@
 # starlight-sidebar-swipe
 
+## 0.3.0
+
+### Minor Changes
+
+- [#63](https://github.com/trueberryless-org/starlight-sidebar-swipe/pull/63) [`6444be8`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/6444be8cab3cfc332e923d628a89e767bff15408) Thanks [@trueberryless](https://github.com/trueberryless)! - Adds support for Astro v7, drops support for Astro v6.
+
+  ⚠️ **BREAKING CHANGE:** The minimum supported version of Starlight is now `0.41.0`.
+
+  Please follow the [upgrade guide](https://github.com/withastro/starlight/releases/tag/%40astrojs%2Fstarlight%400.41.0) to update your project.
+
 ## 0.2.0
 
 ### Minor Changes
