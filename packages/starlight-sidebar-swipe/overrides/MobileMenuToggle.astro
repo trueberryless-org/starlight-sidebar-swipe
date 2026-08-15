@@ -3,6 +3,7 @@ import { Icon } from "@astrojs/starlight/components";
 ---
 
 <starlight-menu-button class="print:hidden">
+  <!-- @ts-expect-error -->
   <button
     aria-expanded="false"
     aria-label={Astro.locals.t("menuButton.accessibleLabel")}
@@ -15,37 +16,38 @@ import { Icon } from "@astrojs/starlight/components";
 </starlight-menu-button>
 
 <script>
-  const body = document.querySelector("body");
-  const mainFrame = document.querySelector(".main-frame");
-  let startX, lastX, startY, lastY, startTime, diffX;
-  let velocitySamples = [];
-  let velocityTimer;
-  let isScrollingHorizontally = false;
-  let isTouchActive = false;
+  import { initSwipeNavigation } from "../libs/swipe";
 
-  // Threshold to determine horizontal vs vertical scrolling (in pixels)
-  const DIRECTION_THRESHOLD = 10;
+  const mainFrame = document.querySelector<HTMLElement>(".main-frame");
 
   class StarlightMenuButton extends HTMLElement {
-    btn = this.querySelector("button");
+    btn = this.querySelector<HTMLButtonElement>("button");
 
     constructor() {
       super();
-      // Toggle `aria-expanded` state when a user clicks the button.
-      this.btn.addEventListener("click", () => this.toggleExpanded());
-      // Close the menu when a user presses the escape key.
+      if (this.btn) {
+        this.btn.addEventListener("click", () => this.toggleExpanded());
+      }
       const parentNav = this.closest("nav");
       if (parentNav) {
-        parentNav.addEventListener("keyup", (e) => this.closeOnEscape(e));
+        parentNav.addEventListener("keyup", (e: Event) => this.closeOnEscape(e));
+      }
+
+      if (mainFrame) {
+        initSwipeNavigation(
+          mainFrame,
+          (expanded: boolean) => this.setExpanded(expanded),
+          () => this.getAttribute("aria-expanded") === "true"
+        );
       }
     }
 
-    setExpanded(expanded) {
+    setExpanded(expanded: boolean): void {
       this.setAttribute("aria-expanded", String(expanded));
       document.body.toggleAttribute("data-mobile-menu-expanded", expanded);
 
-      // Update the transform of mainFrame based on menu state
       if (mainFrame) {
+        mainFrame.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
         if (expanded) {
           mainFrame.style.transform = "translateX(100vw)";
         } else {
@@ -54,186 +56,46 @@ import { Icon } from "@astrojs/starlight/components";
       }
     }
 
-    toggleExpanded() {
+    toggleExpanded(): void {
       this.setExpanded(this.getAttribute("aria-expanded") !== "true");
     }
 
-    closeOnEscape(e) {
-      if (e.code === "Escape") {
+    closeOnEscape(e: Event): void {
+      if (e instanceof KeyboardEvent && e.code === "Escape") {
         this.setExpanded(false);
-        this.btn.focus();
+        if (this.btn) {
+          this.btn.focus();
+        }
       }
     }
   }
 
   customElements.define("starlight-menu-button", StarlightMenuButton);
 
-  function calculateVelocity(distance, time) {
-    const normalizedDistance = distance / 100;
-    const normalizedTime = (time / window.innerWidth) * 100;
-    return Math.abs(normalizedDistance / normalizedTime);
-  }
-
-  function pxToVw(px) {
-    return (px / window.innerWidth) * 100;
-  }
-
-  function recordVelocity() {
-    if (lastX !== undefined && startX !== undefined) {
-      const distance = pxToVw(lastX - startX);
-      const elapsedTime = Date.now() - startTime;
-      const velocity = calculateVelocity(distance, elapsedTime);
-      velocitySamples.push(velocity);
-      if (velocitySamples.length > 5) velocitySamples.shift();
-    }
-  }
-
-  function getWeightedRecentVelocity() {
-    if (velocitySamples.length === 0) return 0;
-    const totalWeight = velocitySamples.reduce(
-      (sum, _, index) => sum + (index + 1),
-      0
-    );
-    const weightedSum = velocitySamples.reduce(
-      (sum, velocity, index) => sum + velocity * (index + 1),
-      0
-    );
-    return weightedSum / totalWeight;
-  }
-
-  // Determine if the scroll is primarily horizontal or vertical
-  function determineScrollDirection(deltaX, deltaY) {
-    // If horizontal movement is significantly greater than vertical, consider it horizontal
-    return (
-      Math.abs(deltaX) > Math.abs(deltaY) &&
-      Math.abs(deltaX) > DIRECTION_THRESHOLD
-    );
-  }
-
-  // Skip swipe functionality on desktop
   window.addEventListener("resize", () => {
     if (window.innerWidth >= 800 && mainFrame) {
       mainFrame.style.transition = "none";
       mainFrame.style.transform = "translateX(0)";
     }
   });
-
-  if (body && mainFrame) {
-    body.addEventListener("touchstart", (e) => {
-      if (window.innerWidth >= 800) return;
-
-      startX = e.touches[0].clientX;
-      lastX = e.touches[0].clientX;
-      startY = e.touches[0].clientY;
-      lastY = e.touches[0].clientY;
-      startTime = Date.now();
-      velocitySamples = [];
-      isScrollingHorizontally = false;
-      isTouchActive = true;
-
-      // Don't immediately apply no-transition, wait to determine direction
-      clearInterval(velocityTimer);
-      velocityTimer = setInterval(recordVelocity, 50);
-    });
-
-    body.addEventListener("touchmove", (e) => {
-      if (!isTouchActive || !mainFrame) return;
-
-      const currentX = e.touches[0].clientX;
-      const currentY = e.touches[0].clientY;
-      const deltaX = currentX - startX;
-      const deltaY = currentY - lastY;
-
-      // Only on first significant movement, determine scroll direction
-      if (!isScrollingHorizontally && !isScrollingVertically) {
-        isScrollingHorizontally = determineScrollDirection(
-          deltaX,
-          currentY - startY
-        );
-
-        // Only apply no-transition if we're scrolling horizontally
-        if (isScrollingHorizontally) {
-          mainFrame.style.transition = "none";
-        }
-      }
-
-      // Only move the sidebar if we've determined this is a horizontal scroll
-      if (isScrollingHorizontally) {
-        diffX = pxToVw(currentX - lastX);
-        const currentTransform =
-          parseFloat(mainFrame.style.transform?.replace("translateX(", "")) ||
-          0;
-
-        mainFrame.style.transform = `translateX(${Math.max(
-          Math.min(currentTransform + diffX, 100),
-          0
-        )}vw)`;
-      }
-
-      lastX = currentX;
-      lastY = currentY;
-    });
-
-    body.addEventListener("touchend", swipeEnd);
-    body.addEventListener("touchcancel", swipeEnd);
-
-    function swipeEnd() {
-      if (!mainFrame) return;
-      isTouchActive = false;
-
-      // Only process horizontal swipes
-      if (!isScrollingHorizontally) {
-        isScrollingHorizontally = false;
-        return;
-      }
-
-      clearInterval(velocityTimer);
-      const currentTransform =
-        parseFloat(mainFrame.style.transform?.replace("translateX(", "")) || 0;
-      const recentVelocity = getWeightedRecentVelocity();
-      mainFrame.style.transition =
-        "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
-
-      // Update menu button state based on swipe
-      const menuButton = document.querySelector("starlight-menu-button");
-
-      if (recentVelocity > 0.005 && diffX > 0) {
-        mainFrame.style.transform = "translateX(100vw)";
-        if (menuButton) menuButton.setAttribute("aria-expanded", "true");
-        document.body.toggleAttribute("data-mobile-menu-expanded", true);
-      } else if (recentVelocity > 0.005 && diffX < 0) {
-        mainFrame.style.transform = "translateX(0)";
-        if (menuButton) menuButton.setAttribute("aria-expanded", "false");
-        document.body.toggleAttribute("data-mobile-menu-expanded", false);
-      } else if (currentTransform > 50) {
-        mainFrame.style.transform = "translateX(100vw)";
-        if (menuButton) menuButton.setAttribute("aria-expanded", "true");
-        document.body.toggleAttribute("data-mobile-menu-expanded", true);
-      } else {
-        mainFrame.style.transform = "translateX(0)";
-        if (menuButton) menuButton.setAttribute("aria-expanded", "false");
-        document.body.toggleAttribute("data-mobile-menu-expanded", false);
-      }
-
-      startX = undefined;
-      isScrollingHorizontally = false;
-    }
-
-    // Reset flags if touch is canceled
-    let isScrollingVertically = false;
-
-    // Add this to help determine when user is primarily scrolling vertically
-    body.addEventListener(
-      "scroll",
-      () => {
-        if (isTouchActive && !isScrollingHorizontally) {
-          isScrollingVertically = true;
-        }
-      },
-      { passive: true }
-    );
-  }
 </script>
+
+<style is:global>
+  @media screen and (max-width: 800px) {
+    .page {
+      overflow-x: hidden;
+    }
+    .main-frame {
+      position: relative;
+      background-color: var(--sl-color-bg);
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 6;
+    }
+    :root[data-has-sidebar] .sidebar-pane {
+      visibility: visible !important;
+    }
+  }
+</style>
 
 <style>
   button {

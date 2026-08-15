@@ -23,11 +23,10 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
-    "./overrides/MobileMenuToggle.astro": "./overrides/MobileMenuToggle.astro",
-    "./styles/swipe.css": "./styles/swipe.css"
+    "./overrides/MobileMenuToggle.astro": "./overrides/MobileMenuToggle.astro"
   },
   "devDependencies": {
-    "@astrojs/starlight": "^0.41.7",
+    "@astrojs/starlight": "https://pkg.pr.new/@astrojs/starlight@4121",
     "astro": "^7.2.2"
   },
   "peerDependencies": {

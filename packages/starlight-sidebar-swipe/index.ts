@@ -20,10 +20,6 @@ export default function starlightSidebarSwipe(): StarlightPlugin {
               "MobileMenuToggle"
             ),
           },
-          customCss: [
-            ...(starlightConfig.customCss ?? []),
-            "starlight-sidebar-swipe/styles/swipe.css",
-          ],
         });
       },
     },
