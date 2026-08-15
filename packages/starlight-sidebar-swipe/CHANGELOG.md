@@ -1,5 +1,15 @@
 # starlight-sidebar-swipe
 
+## 0.3.1
+
+### Patch Changes
+
+- [`030e888`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/030e88831354e3abc845a12aabd2de57f10c893e) Thanks [@trueberryless](https://github.com/trueberryless)! - Internal refactor improvements.
+
+- [`030e888`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/030e88831354e3abc845a12aabd2de57f10c893e) Thanks [@trueberryless](https://github.com/trueberryless)! - The swipe.css style is no longer exported. It has been moved into the `MobileMenuToggle.astro` component override as a global style block.
+
+- [`030e888`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/030e88831354e3abc845a12aabd2de57f10c893e) Thanks [@trueberryless](https://github.com/trueberryless)! - The swipe gesture has been slightly improved to feel more Discord-like and be more stable and robust. Horizontal and vertical scrolling now lock each other to prevent any "free space" movements, which feel unnatural.
+
 ## 0.3.0
 
 ### Minor Changes
