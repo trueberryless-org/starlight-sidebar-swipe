@@ -1,5 +1,11 @@
 # starlight-sidebar-swipe
 
+## 0.3.2
+
+### Patch Changes
+
+- [`c82ba20`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/c82ba20eed5f951114f497c13257600d373f88e3) Thanks [@trueberryless](https://github.com/trueberryless)! - Remove Starlight from dev dependencies
+
 ## 0.3.1
 
 ### Patch Changes
