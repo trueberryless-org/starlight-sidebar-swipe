@@ -17,6 +17,11 @@ export default function starlightSidebarSwipe(): StarlightPlugin {
             ...overrideStarlightComponent(
               starlightConfig.components,
               logger,
+              "PageFrame"
+            ),
+            ...overrideStarlightComponent(
+              starlightConfig.components,
+              logger,
               "MobileMenuToggle"
             ),
           },

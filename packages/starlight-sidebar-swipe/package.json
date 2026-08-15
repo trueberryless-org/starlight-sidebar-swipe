@@ -23,6 +23,7 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./overrides/PageFrame.astro": "./overrides/PageFrame.astro",
     "./overrides/MobileMenuToggle.astro": "./overrides/MobileMenuToggle.astro"
   },
   "devDependencies": {
