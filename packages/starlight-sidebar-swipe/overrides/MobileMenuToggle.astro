@@ -121,6 +121,9 @@ import { Icon } from "@astrojs/starlight/components";
   if (body && mainFrame) {
     body.addEventListener("touchstart", (e) => {
       if (window.innerWidth >= 800) return;
+      if (e.target instanceof Element && e.target.closest('[role="tablist"]')) {
+        return;
+      }
 
       startX = e.touches[0].clientX;
       lastX = e.touches[0].clientX;
