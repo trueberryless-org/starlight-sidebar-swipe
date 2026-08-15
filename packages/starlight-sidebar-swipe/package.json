@@ -26,7 +26,6 @@
     "./overrides/MobileMenuToggle.astro": "./overrides/MobileMenuToggle.astro"
   },
   "devDependencies": {
-    "@astrojs/starlight": "https://pkg.pr.new/@astrojs/starlight@4121",
     "astro": "^7.2.2"
   },
   "peerDependencies": {
