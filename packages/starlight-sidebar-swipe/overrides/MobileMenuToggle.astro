@@ -30,7 +30,9 @@ import { Icon } from "@astrojs/starlight/components";
       }
       const parentNav = this.closest("nav");
       if (parentNav) {
-        parentNav.addEventListener("keyup", (e: Event) => this.closeOnEscape(e));
+        parentNav.addEventListener("keyup", (e: Event) =>
+          this.closeOnEscape(e)
+        );
       }
 
       if (mainFrame) {
@@ -47,7 +49,8 @@ import { Icon } from "@astrojs/starlight/components";
       document.body.toggleAttribute("data-mobile-menu-expanded", expanded);
 
       if (mainFrame) {
-        mainFrame.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
+        mainFrame.style.transition =
+          "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
         if (expanded) {
           mainFrame.style.transform = "translateX(100vw)";
         } else {
