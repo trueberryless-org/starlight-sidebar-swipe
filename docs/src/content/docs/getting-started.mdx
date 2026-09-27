@@ -66,3 +66,21 @@ import { Steps, Tabs, TabItem } from "@astrojs/starlight/components";
 3. [Start the development server](https://starlight.astro.build/getting-started/#start-the-development-server) to preview the plugin in action.
 
 </Steps>
+
+## Component overrides
+
+The Starlight Sidebar Swipe plugin uses a Starlight [component override](https://starlight.astro.build/guides/overriding-components/) for the [`MobileMenuToggle`](https://starlight.astro.build/reference/overrides/#mobilemenutoggle) component to replace the default mobile menu toggle with one that slides the page content aside to reveal the sidebar and supports swipe gestures.
+
+If you have a custom `MobileMenuToggle` override in your Starlight project, you will need to manually render the `MobileMenuToggle` component from the Starlight Sidebar Swipe plugin in your custom component _instead of_ the default Starlight component:
+
+```diff lang="astro"
+---
+// src/components/overrides/MobileMenuToggle.astro
+-import Default from '@astrojs/starlight/components/MobileMenuToggle.astro'
++import StarlightSidebarSwipeMobileMenuToggle from 'starlight-sidebar-swipe/components/MobileMenuToggle.astro'
+---
+
+<p>Custom content in the MobileMenuToggle override</p>
+-<Default />
++<StarlightSidebarSwipeMobileMenuToggle />
+```
