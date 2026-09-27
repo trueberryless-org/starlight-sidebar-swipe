@@ -1,24 +1,34 @@
-import { isDesktopViewport } from "./menu";
+import {
+  SLIDE_EASING_INITIAL_SLOPE,
+  getMainFrameTranslateX,
+  isDesktopViewport,
+  moveMainFrame,
+} from "./menu";
 
 const SWIPE_DETECTION_DISTANCE = 5;
 const MAX_HORIZONTAL_SWIPE_ANGLE = 30;
-const SWIPE_IDLE_THRESHOLD = 50;
-const SWIPE_MIN_MOVEMENT = 2;
-const TRANSLATE_X_RE = /translateX\(([-.0-9]+)/;
+const VELOCITY_SAMPLE_WINDOW = 100;
+const FLING_VELOCITY = 0.3;
+const MIN_SETTLE_DURATION = 120;
+const MAX_SETTLE_DURATION = 300;
 
 export function initSwipeNavigation(
   element: HTMLElement,
-  setExpanded: (expanded: boolean) => void,
-  getExpanded: () => boolean
+  setExpanded: (expanded: boolean, duration: number) => void
 ) {
   let state: SwipeState = "idle";
   let startX = 0;
   let startY = 0;
-  let lastX = 0;
-  let lastTime = 0;
-  let movement = 0;
-  let isOpenAtStart = false;
+  let startTranslateX = 0;
+  let translateX = 0;
+  let samples: SwipeSample[] = [];
   let touchTarget: EventTarget | null = null;
+  let animationFrame: number | undefined;
+
+  const renderSwipe = () => {
+    animationFrame = undefined;
+    moveMainFrame(element, translateX);
+  };
 
   document.addEventListener(
     "touchstart",
@@ -29,12 +39,10 @@ export function initSwipeNavigation(
       state = "measuring";
       startX = touch.clientX;
       startY = touch.clientY;
-      lastX = startX;
-      lastTime = Date.now();
-      isOpenAtStart = getExpanded();
-      movement = 0;
+      startTranslateX = getMainFrameTranslateX(element);
+      translateX = startTranslateX;
+      samples = [{ time: event.timeStamp, x: touch.clientX }];
       touchTarget = event.target;
-      element.style.transition = "none";
     },
     { passive: true }
   );
@@ -56,34 +64,29 @@ export function initSwipeNavigation(
 
       if (event.cancelable) event.preventDefault();
 
-      const now = Date.now();
-      if (now > lastTime) {
-        movement = touch.clientX - lastX;
-        lastX = touch.clientX;
-        lastTime = now;
-      }
-
-      const translateX = getSwipeTranslateX(
-        isOpenAtStart,
-        dx,
-        getSidebarWidth()
-      );
-
-      element.style.transition = "transform 0.03s ease-out";
-      element.style.transform = `translateX(${translateX}px)`;
+      samples = addSwipeSample(samples, {
+        time: event.timeStamp,
+        x: touch.clientX,
+      });
+      translateX = clampTranslateX(startTranslateX + dx, getSidebarWidth());
+      animationFrame ??= requestAnimationFrame(renderSwipe);
     },
     { passive: false }
   );
 
-  const endSwipe = () => {
+  const endSwipe = (event: TouchEvent) => {
     if (state === "swiping") {
+      if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
+      renderSwipe();
+
+      const sidebarWidth = getSidebarWidth();
+      const velocity = getSwipeVelocity(samples, event.timeStamp);
+      const expanded = isSwipeExpanding(translateX, sidebarWidth, velocity);
+      const distance = Math.abs((expanded ? sidebarWidth : 0) - translateX);
+
       setExpanded(
-        isSwipeExpanding(
-          getTranslateX(element),
-          getSidebarWidth(),
-          Date.now() - lastTime,
-          movement
-        )
+        expanded,
+        getSettleDuration(distance, sidebarWidth, velocity)
       );
     }
 
@@ -103,12 +106,6 @@ function isSwipeEnabled(): boolean {
 
 function getSidebarWidth(): number {
   return window.innerWidth;
-}
-
-function getTranslateX(element: HTMLElement): number {
-  const match = element.style.transform.match(TRANSLATE_X_RE);
-
-  return Number.parseFloat(match?.[1] ?? "0");
 }
 
 function getSwipeState(
@@ -162,26 +159,59 @@ function canScrollHorizontally(
     : scrollPosition < maxScrollPosition - 1;
 }
 
-function getSwipeTranslateX(
-  isOpenAtStart: boolean,
-  dx: number,
-  sidebarWidth: number
-): number {
-  const base = isOpenAtStart ? sidebarWidth : 0;
+function addSwipeSample(
+  samples: SwipeSample[],
+  sample: SwipeSample
+): SwipeSample[] {
+  return [
+    ...samples.filter(
+      ({ time }) => sample.time - time <= VELOCITY_SAMPLE_WINDOW
+    ),
+    sample,
+  ];
+}
 
-  return Math.max(0, Math.min(base + dx, sidebarWidth));
+function clampTranslateX(translateX: number, sidebarWidth: number): number {
+  return Math.max(0, Math.min(translateX, sidebarWidth));
+}
+
+function getSwipeVelocity(samples: SwipeSample[], now: number): number {
+  const recentSamples = samples.filter(
+    ({ time }) => now - time <= VELOCITY_SAMPLE_WINDOW
+  );
+  const first = recentSamples[0];
+  const last = recentSamples.at(-1);
+  if (!first || !last || last.time === first.time) return 0;
+
+  return (last.x - first.x) / (last.time - first.time);
 }
 
 function isSwipeExpanding(
   translateX: number,
   sidebarWidth: number,
-  idleTime: number,
-  movement: number
+  velocity: number
 ): boolean {
-  const isStandingStill =
-    idleTime > SWIPE_IDLE_THRESHOLD || Math.abs(movement) < SWIPE_MIN_MOVEMENT;
+  if (Math.abs(velocity) >= FLING_VELOCITY) return velocity > 0;
 
-  return isStandingStill ? translateX > sidebarWidth / 2 : movement > 0;
+  return translateX > sidebarWidth / 2;
+}
+
+function getSettleDuration(
+  distance: number,
+  sidebarWidth: number,
+  velocity: number
+): number {
+  const duration =
+    Math.abs(velocity) >= FLING_VELOCITY
+      ? (SLIDE_EASING_INITIAL_SLOPE * distance) / Math.abs(velocity)
+      : (MAX_SETTLE_DURATION * distance) / sidebarWidth;
+
+  return Math.max(MIN_SETTLE_DURATION, Math.min(duration, MAX_SETTLE_DURATION));
+}
+
+interface SwipeSample {
+  time: number;
+  x: number;
 }
 
 type SwipeState = "idle" | "ignored" | "measuring" | "swiping";

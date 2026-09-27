@@ -50,10 +50,8 @@ import { Icon } from "@astrojs/starlight/components";
       updateMenuInertness(false);
 
       if (mainFrame) {
-        initSwipeNavigation(
-          mainFrame,
-          (expanded: boolean) => this.setExpanded(expanded),
-          () => this.isExpanded()
+        initSwipeNavigation(mainFrame, (expanded: boolean, duration: number) =>
+          this.setExpanded(expanded, duration)
         );
       }
     }
@@ -62,13 +60,13 @@ import { Icon } from "@astrojs/starlight/components";
       return this.getAttribute("aria-expanded") === "true";
     }
 
-    setExpanded(expanded: boolean): void {
+    setExpanded(expanded: boolean, duration?: number): void {
       this.setAttribute("aria-expanded", String(expanded));
       this.btn?.setAttribute("aria-expanded", String(expanded));
       document.body.toggleAttribute("data-mobile-menu-expanded", expanded);
       updateMenuInertness(expanded);
 
-      if (mainFrame) slideMainFrame(mainFrame, expanded);
+      if (mainFrame) slideMainFrame(mainFrame, expanded, duration);
     }
 
     resetExpanded(): void {
