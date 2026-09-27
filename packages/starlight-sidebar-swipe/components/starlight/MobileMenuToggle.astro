@@ -8,6 +8,7 @@ import { Icon } from "@astrojs/starlight/components";
     aria-label={Astro.locals.t("menuButton.accessibleLabel")}
     aria-controls="starlight__sidebar"
     class="sl-menu-button sl-flex md:sl-hidden"
+    popovertarget="starlight__sidebar"
   >
     <Icon name="bars" class="open-menu" />
     <Icon name="close" class="close-menu" />
@@ -16,11 +17,12 @@ import { Icon } from "@astrojs/starlight/components";
 
 <script>
   import {
-    initSwipeNavigation,
-    isDesktopViewport,
+    getDesktopMediaQuery,
     resetMainFrame,
     slideMainFrame,
-  } from "../../libs/swipe";
+    updateMenuInertness,
+  } from "../../libs/menu";
+  import { initSwipeNavigation } from "../../libs/swipe";
 
   const mainFrame = document.querySelector<HTMLElement>(".main-frame");
 
@@ -30,7 +32,10 @@ import { Icon } from "@astrojs/starlight/components";
     constructor() {
       super();
       if (this.btn) {
-        this.btn.addEventListener("click", () => this.toggleExpanded());
+        this.btn.addEventListener("click", (e: Event) => {
+          e.preventDefault();
+          this.toggleExpanded();
+        });
       }
       const parentNav = this.closest("nav");
       if (parentNav) {
@@ -39,24 +44,41 @@ import { Icon } from "@astrojs/starlight/components";
         );
       }
 
+      getDesktopMediaQuery().addEventListener("change", () =>
+        this.resetExpanded()
+      );
+      updateMenuInertness(false);
+
       if (mainFrame) {
         initSwipeNavigation(
           mainFrame,
           (expanded: boolean) => this.setExpanded(expanded),
-          () => this.getAttribute("aria-expanded") === "true"
+          () => this.isExpanded()
         );
       }
     }
 
+    isExpanded(): boolean {
+      return this.getAttribute("aria-expanded") === "true";
+    }
+
     setExpanded(expanded: boolean): void {
       this.setAttribute("aria-expanded", String(expanded));
+      this.btn?.setAttribute("aria-expanded", String(expanded));
       document.body.toggleAttribute("data-mobile-menu-expanded", expanded);
+      updateMenuInertness(expanded);
 
       if (mainFrame) slideMainFrame(mainFrame, expanded);
     }
 
+    resetExpanded(): void {
+      this.setExpanded(false);
+
+      if (mainFrame) resetMainFrame(mainFrame);
+    }
+
     toggleExpanded(): void {
-      this.setExpanded(this.getAttribute("aria-expanded") !== "true");
+      this.setExpanded(!this.isExpanded());
     }
 
     closeOnEscape(e: Event): void {
@@ -70,14 +92,10 @@ import { Icon } from "@astrojs/starlight/components";
   }
 
   customElements.define("starlight-menu-button", StarlightMenuButton);
-
-  window.addEventListener("resize", () => {
-    if (isDesktopViewport() && mainFrame) resetMainFrame(mainFrame);
-  });
 </script>
 
 <style is:global>
-  @media screen and (max-width: 800px) {
+  @media screen and (width < 50rem) {
     .page {
       overflow-x: hidden;
     }
@@ -110,16 +128,20 @@ import { Icon } from "@astrojs/starlight/components";
     cursor: pointer;
   }
 
-  [aria-expanded="true"] button {
+  [aria-expanded="true"] button,
+  starlight-menu-button:has(~ :popover-open) button {
     background-color: var(--sl-color-gray-2);
     box-shadow: none;
   }
 
-  [aria-expanded="true"] button .open-menu {
+  [aria-expanded="true"] button .open-menu,
+  starlight-menu-button:has(~ :popover-open) button .open-menu {
     display: none;
   }
 
-  :not([aria-expanded="true"]) button .close-menu {
+  starlight-menu-button:not([aria-expanded="true"]):not(:has(~ :popover-open))
+    button
+    .close-menu {
     display: none;
   }
 
@@ -128,18 +150,23 @@ import { Icon } from "@astrojs/starlight/components";
     color: var(--sl-color-white);
   }
 
-  :global([data-theme="light"]) [aria-expanded="true"] button {
+  :global([data-theme="light"]) [aria-expanded="true"] button,
+  :global([data-theme="light"])
+    starlight-menu-button:has(~ :popover-open)
+    button {
     background-color: var(--sl-color-gray-5);
   }
 </style>
 
 <style is:global>
-  [data-mobile-menu-expanded] {
+  [data-mobile-menu-expanded],
+  body:has(#starlight__sidebar:popover-open) {
     overflow: hidden;
   }
 
   @media (min-width: 50rem) {
-    [data-mobile-menu-expanded] {
+    [data-mobile-menu-expanded],
+    body:has(#starlight__sidebar:popover-open) {
       overflow: auto;
     }
   }
