@@ -1,40 +1,47 @@
 {
   "name": "starlight-sidebar-swipe",
-  "version": "0.3.2",
-  "description": "Make sidebar swipeable on mobile devices like Discord Mobile.",
-  "keywords": [
-    "starlight",
-    "sidebar",
-    "swipe",
-    "mobile",
-    "discord"
-  ],
-  "homepage": "https://starlight-sidebar-swipe.netlify.app/",
-  "bugs": {
-    "url": "https://github.com/trueberryless-org/starlight-sidebar-swipe/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/trueberryless-org/starlight-sidebar-swipe.git",
-    "directory": "packages/starlight-sidebar-swipe"
-  },
+  "version": "0.4.0",
   "license": "MIT",
+  "description": "Starlight plugin to make the sidebar swipeable on mobile devices like Discord Mobile.",
   "author": "trueberryless <trueberryless@gmail.com> (https://felixs.dev)",
   "type": "module",
   "exports": {
     ".": "./index.ts",
-    "./overrides/MobileMenuToggle.astro": "./overrides/MobileMenuToggle.astro"
+    "./components/MobileMenuToggle.astro": "./components/starlight/MobileMenuToggle.astro",
+    "./overrides/MobileMenuToggle.astro": "./overrides/MobileMenuToggle.astro",
+    "./package.json": "./package.json"
   },
   "devDependencies": {
-    "astro": "^7.2.9"
+    "@astrojs/starlight": "^0.42.4",
+    "astro": "^7.3.5"
   },
   "peerDependencies": {
-    "@astrojs/starlight": ">=0.41"
+    "@astrojs/starlight": ">=0.42.0"
   },
   "engines": {
-    "node": ">=22.23.1"
+    "node": ">=22.12.0"
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "sideEffects": false,
+  "keywords": [
+    "starlight",
+    "plugin",
+    "sidebar",
+    "swipe",
+    "mobile",
+    "discord",
+    "documentation",
+    "astro",
+    "withastro",
+    "astro-integration"
+  ],
+  "homepage": "https://starlight-sidebar-swipe.netlify.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trueberryless-org/starlight-sidebar-swipe.git",
+    "directory": "packages/starlight-sidebar-swipe"
+  },
+  "bugs": "https://github.com/trueberryless-org/starlight-sidebar-swipe/issues"
 }

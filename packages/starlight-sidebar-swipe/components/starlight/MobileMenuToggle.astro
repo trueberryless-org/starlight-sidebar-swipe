@@ -1,0 +1,171 @@
+---
+import { Icon } from "@astrojs/starlight/components";
+---
+
+<starlight-menu-button class="print:hidden">
+  <button
+    aria-expanded="false"
+    aria-label={Astro.locals.t("menuButton.accessibleLabel")}
+    aria-controls="starlight__sidebar"
+    class="sl-menu-button sl-flex md:sl-hidden"
+    popovertarget="starlight__sidebar"
+  >
+    <Icon name="bars" class="open-menu" />
+    <Icon name="close" class="close-menu" />
+  </button>
+</starlight-menu-button>
+
+<script>
+  import {
+    getDesktopMediaQuery,
+    resetMainFrame,
+    slideMainFrame,
+    updateMenuInertness,
+  } from "../../libs/menu";
+  import { initSwipeNavigation } from "../../libs/swipe";
+
+  const mainFrame = document.querySelector<HTMLElement>(".main-frame");
+
+  class StarlightMenuButton extends HTMLElement {
+    btn = this.querySelector<HTMLButtonElement>("button");
+
+    constructor() {
+      super();
+      if (this.btn) {
+        this.btn.addEventListener("click", (e: Event) => {
+          e.preventDefault();
+          this.toggleExpanded();
+        });
+      }
+      const parentNav = this.closest("nav");
+      if (parentNav) {
+        parentNav.addEventListener("keyup", (e: Event) =>
+          this.closeOnEscape(e)
+        );
+      }
+
+      getDesktopMediaQuery().addEventListener("change", () =>
+        this.resetExpanded()
+      );
+      updateMenuInertness(false);
+
+      if (mainFrame) {
+        initSwipeNavigation(mainFrame, (expanded: boolean, duration: number) =>
+          this.setExpanded(expanded, duration)
+        );
+      }
+    }
+
+    isExpanded(): boolean {
+      return this.getAttribute("aria-expanded") === "true";
+    }
+
+    setExpanded(expanded: boolean, duration?: number): void {
+      this.setAttribute("aria-expanded", String(expanded));
+      this.btn?.setAttribute("aria-expanded", String(expanded));
+      document.body.toggleAttribute("data-mobile-menu-expanded", expanded);
+      updateMenuInertness(expanded);
+
+      if (mainFrame) slideMainFrame(mainFrame, expanded, duration);
+    }
+
+    resetExpanded(): void {
+      this.setExpanded(false);
+
+      if (mainFrame) resetMainFrame(mainFrame);
+    }
+
+    toggleExpanded(): void {
+      this.setExpanded(!this.isExpanded());
+    }
+
+    closeOnEscape(e: Event): void {
+      if (e instanceof KeyboardEvent && e.code === "Escape") {
+        this.setExpanded(false);
+        if (this.btn) {
+          this.btn.focus();
+        }
+      }
+    }
+  }
+
+  customElements.define("starlight-menu-button", StarlightMenuButton);
+</script>
+
+<style is:global>
+  @media screen and (width < 50rem) {
+    .page {
+      overflow-x: hidden;
+    }
+    .main-frame {
+      position: relative;
+      background-color: var(--sl-color-bg);
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 6;
+    }
+    :root[data-has-sidebar]:has(starlight-menu-button:defined) .sidebar-pane {
+      display: block;
+    }
+  }
+</style>
+
+<style>
+  button {
+    position: fixed;
+    top: calc((var(--sl-nav-height) - var(--sl-menu-button-size)) / 2);
+    inset-inline-end: var(--sl-nav-pad-x);
+    z-index: var(--sl-z-index-navbar);
+    border: 0;
+    border-radius: 50%;
+    width: var(--sl-menu-button-size);
+    height: var(--sl-menu-button-size);
+    padding: 0.5rem;
+    background-color: var(--sl-color-white);
+    color: var(--sl-color-black);
+    box-shadow: var(--sl-shadow-md);
+    cursor: pointer;
+  }
+
+  [aria-expanded="true"] button,
+  starlight-menu-button:has(~ :popover-open) button {
+    background-color: var(--sl-color-gray-2);
+    box-shadow: none;
+  }
+
+  [aria-expanded="true"] button .open-menu,
+  starlight-menu-button:has(~ :popover-open) button .open-menu {
+    display: none;
+  }
+
+  starlight-menu-button:not([aria-expanded="true"]):not(:has(~ :popover-open))
+    button
+    .close-menu {
+    display: none;
+  }
+
+  :global([data-theme="light"]) button {
+    background-color: var(--sl-color-black);
+    color: var(--sl-color-white);
+  }
+
+  :global([data-theme="light"]) [aria-expanded="true"] button,
+  :global([data-theme="light"])
+    starlight-menu-button:has(~ :popover-open)
+    button {
+    background-color: var(--sl-color-gray-5);
+  }
+</style>
+
+<style is:global>
+  [data-mobile-menu-expanded],
+  body:has(#starlight__sidebar:popover-open) {
+    overflow: hidden;
+  }
+
+  @media (min-width: 50rem) {
+    [data-mobile-menu-expanded],
+    body:has(#starlight__sidebar:popover-open) {
+      overflow: auto;
+    }
+  }
+</style>
