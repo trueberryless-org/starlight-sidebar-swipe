@@ -1,0 +1,146 @@
+---
+import { Icon } from "@astrojs/starlight/components";
+---
+
+<starlight-menu-button class="print:hidden">
+  <button
+    aria-expanded="false"
+    aria-label={Astro.locals.t("menuButton.accessibleLabel")}
+    aria-controls="starlight__sidebar"
+    class="sl-menu-button sl-flex md:sl-hidden"
+  >
+    <Icon name="bars" class="open-menu" />
+    <Icon name="close" class="close-menu" />
+  </button>
+</starlight-menu-button>
+
+<script>
+  import {
+    initSwipeNavigation,
+    isDesktopViewport,
+    resetMainFrame,
+    slideMainFrame,
+  } from "../../libs/swipe";
+
+  const mainFrame = document.querySelector<HTMLElement>(".main-frame");
+
+  class StarlightMenuButton extends HTMLElement {
+    btn = this.querySelector<HTMLButtonElement>("button");
+
+    constructor() {
+      super();
+      if (this.btn) {
+        this.btn.addEventListener("click", () => this.toggleExpanded());
+      }
+      const parentNav = this.closest("nav");
+      if (parentNav) {
+        parentNav.addEventListener("keyup", (e: Event) =>
+          this.closeOnEscape(e)
+        );
+      }
+
+      if (mainFrame) {
+        initSwipeNavigation(
+          mainFrame,
+          (expanded: boolean) => this.setExpanded(expanded),
+          () => this.getAttribute("aria-expanded") === "true"
+        );
+      }
+    }
+
+    setExpanded(expanded: boolean): void {
+      this.setAttribute("aria-expanded", String(expanded));
+      document.body.toggleAttribute("data-mobile-menu-expanded", expanded);
+
+      if (mainFrame) slideMainFrame(mainFrame, expanded);
+    }
+
+    toggleExpanded(): void {
+      this.setExpanded(this.getAttribute("aria-expanded") !== "true");
+    }
+
+    closeOnEscape(e: Event): void {
+      if (e instanceof KeyboardEvent && e.code === "Escape") {
+        this.setExpanded(false);
+        if (this.btn) {
+          this.btn.focus();
+        }
+      }
+    }
+  }
+
+  customElements.define("starlight-menu-button", StarlightMenuButton);
+
+  window.addEventListener("resize", () => {
+    if (isDesktopViewport() && mainFrame) resetMainFrame(mainFrame);
+  });
+</script>
+
+<style is:global>
+  @media screen and (max-width: 800px) {
+    .page {
+      overflow-x: hidden;
+    }
+    .main-frame {
+      position: relative;
+      background-color: var(--sl-color-bg);
+      transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 6;
+    }
+    :root[data-has-sidebar] .sidebar-pane {
+      display: block;
+    }
+  }
+</style>
+
+<style>
+  button {
+    position: fixed;
+    top: calc((var(--sl-nav-height) - var(--sl-menu-button-size)) / 2);
+    inset-inline-end: var(--sl-nav-pad-x);
+    z-index: var(--sl-z-index-navbar);
+    border: 0;
+    border-radius: 50%;
+    width: var(--sl-menu-button-size);
+    height: var(--sl-menu-button-size);
+    padding: 0.5rem;
+    background-color: var(--sl-color-white);
+    color: var(--sl-color-black);
+    box-shadow: var(--sl-shadow-md);
+    cursor: pointer;
+  }
+
+  [aria-expanded="true"] button {
+    background-color: var(--sl-color-gray-2);
+    box-shadow: none;
+  }
+
+  [aria-expanded="true"] button .open-menu {
+    display: none;
+  }
+
+  :not([aria-expanded="true"]) button .close-menu {
+    display: none;
+  }
+
+  :global([data-theme="light"]) button {
+    background-color: var(--sl-color-black);
+    color: var(--sl-color-white);
+  }
+
+  :global([data-theme="light"]) [aria-expanded="true"] button {
+    background-color: var(--sl-color-gray-5);
+  }
+</style>
+
+<style is:global>
+  [data-mobile-menu-expanded] {
+    overflow: hidden;
+  }
+
+  @media (min-width: 50rem) {
+    [data-mobile-menu-expanded] {
+      overflow: auto;
+    }
+  }
+</style>

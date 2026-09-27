@@ -1,25 +1,22 @@
 import type { StarlightPlugin } from "@astrojs/starlight/types";
 
-import { overrideStarlightComponent } from "./libs/starlight";
+import { getComponentOverrides } from "./libs/starlight";
 
 export default function starlightSidebarSwipe(): StarlightPlugin {
   return {
     name: "starlight-sidebar-swipe",
     hooks: {
       "config:setup"({
-        updateConfig: updateStarlightConfig,
         config: starlightConfig,
         logger,
+        updateConfig: updateStarlightConfig,
       }) {
         updateStarlightConfig({
-          components: {
-            ...starlightConfig.components,
-            ...overrideStarlightComponent(
-              starlightConfig.components,
-              logger,
-              "MobileMenuToggle"
-            ),
-          },
+          components: getComponentOverrides(
+            starlightConfig.components,
+            logger,
+            ["MobileMenuToggle"]
+          ),
         });
       },
     },

@@ -1,25 +1,27 @@
+const desktopMinWidth = 800;
+const swipeDetectionDistance = 5;
+const maxHorizontalSwipeAngle = 30;
+const swipeIdleThreshold = 50;
+const swipeMinMovement = 2;
+
 export function initSwipeNavigation(
   element: HTMLElement,
   setExpanded: (expanded: boolean) => void,
   getExpanded: () => boolean
 ) {
-  let state: "idle" | "measuring" | "horizontal" | "vertical" = "idle";
+  let state: SwipeState = "idle";
   let startX = 0;
   let startY = 0;
   let lastX = 0;
   let lastTime = 0;
-  let movementDirection = 0;
+  let movement = 0;
   let isOpenAtStart = false;
-
-  const getSidebarWidthPx = () => window.innerWidth;
 
   document.addEventListener(
     "touchstart",
-    (e: TouchEvent) => {
-      if (!document.documentElement.hasAttribute("data-has-sidebar")) return;
-
-      const touch = e.touches[0];
-      if (!touch || window.innerWidth >= 800) return;
+    (event: TouchEvent) => {
+      const touch = event.touches[0];
+      if (!isSwipeEnabled() || !touch) return;
 
       state = "measuring";
       startX = touch.clientX;
@@ -27,7 +29,7 @@ export function initSwipeNavigation(
       lastX = startX;
       lastTime = Date.now();
       isOpenAtStart = getExpanded();
-      movementDirection = 0;
+      movement = 0;
       element.style.transition = "none";
     },
     { passive: true }
@@ -35,75 +37,118 @@ export function initSwipeNavigation(
 
   document.addEventListener(
     "touchmove",
-    (e: TouchEvent) => {
-      if (state === "idle" || state === "vertical" || window.innerWidth >= 800)
+    (event: TouchEvent) => {
+      if (state === "idle" || state === "vertical" || isDesktopViewport())
         return;
 
-      const touch = e.touches[0];
+      const touch = event.touches[0];
       if (!touch) return;
 
-      const x = touch.clientX;
-      const y = touch.clientY;
-      const dx = x - startX;
-      const dy = y - startY;
+      const dx = touch.clientX - startX;
+      const dy = touch.clientY - startY;
 
-      if (state === "measuring") {
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        if (distance >= 5) {
-          const angle =
-            Math.atan2(Math.abs(dy), Math.abs(dx)) * (180 / Math.PI);
-          if (angle > 30) {
-            state = "vertical";
-          } else {
-            state = "horizontal";
-          }
-        }
+      if (state === "measuring") state = getSwipeState(dx, dy);
+      if (state !== "horizontal") return;
+
+      if (event.cancelable) event.preventDefault();
+
+      const now = Date.now();
+      if (now > lastTime) {
+        movement = touch.clientX - lastX;
+        lastX = touch.clientX;
+        lastTime = now;
       }
 
-      if (state === "horizontal") {
-        if (e.cancelable) e.preventDefault();
+      const translateX = getSwipeTranslateX(
+        isOpenAtStart,
+        dx,
+        getSidebarWidth()
+      );
 
-        const now = Date.now();
-        const dt = now - lastTime;
-        if (dt > 0) {
-          movementDirection = x - lastX;
-          lastX = x;
-          lastTime = now;
-        }
-
-        const base = isOpenAtStart ? getSidebarWidthPx() : 0;
-        let targetX = base + dx;
-        targetX = Math.max(0, Math.min(targetX, getSidebarWidthPx()));
-
-        element.style.transition = "transform 0.03s ease-out";
-        element.style.transform = `translateX(${targetX}px)`;
-      }
+      element.style.transition = "transform 0.03s ease-out";
+      element.style.transform = `translateX(${translateX}px)`;
     },
     { passive: false }
   );
 
   const endSwipe = () => {
     if (state === "horizontal") {
-      const currentTransformMatch = element.style.transform.match(
-        /translateX\(([-.0-9]+)/
+      setExpanded(
+        isSwipeExpanding(
+          getTranslateX(element),
+          getSidebarWidth(),
+          Date.now() - lastTime,
+          movement
+        )
       );
-      const currentX = currentTransformMatch
-        ? parseFloat(currentTransformMatch[1] || "0")
-        : 0;
-
-      const sidebarWidthPx = getSidebarWidthPx();
-      const isStandingStill =
-        Date.now() - lastTime > 50 || Math.abs(movementDirection) < 2;
-
-      if (isStandingStill) {
-        setExpanded(currentX > sidebarWidthPx / 2);
-      } else {
-        setExpanded(movementDirection > 0);
-      }
     }
+
     state = "idle";
   };
 
   document.addEventListener("touchend", endSwipe);
   document.addEventListener("touchcancel", endSwipe);
 }
+
+export function slideMainFrame(element: HTMLElement, expanded: boolean) {
+  element.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
+  element.style.transform = expanded ? "translateX(100vw)" : "translateX(0)";
+}
+
+export function resetMainFrame(element: HTMLElement) {
+  element.style.transition = "none";
+  element.style.transform = "translateX(0)";
+}
+
+export function isDesktopViewport(): boolean {
+  return window.innerWidth >= desktopMinWidth;
+}
+
+function isSwipeEnabled(): boolean {
+  return (
+    document.documentElement.hasAttribute("data-has-sidebar") &&
+    !isDesktopViewport()
+  );
+}
+
+function getSidebarWidth(): number {
+  return window.innerWidth;
+}
+
+function getTranslateX(element: HTMLElement): number {
+  const match = element.style.transform.match(/translateX\(([-.0-9]+)/);
+
+  return Number.parseFloat(match?.[1] ?? "0");
+}
+
+function getSwipeState(dx: number, dy: number): SwipeState {
+  if (Math.hypot(dx, dy) < swipeDetectionDistance) return "measuring";
+
+  const angle = Math.atan2(Math.abs(dy), Math.abs(dx)) * (180 / Math.PI);
+
+  return angle > maxHorizontalSwipeAngle ? "vertical" : "horizontal";
+}
+
+function getSwipeTranslateX(
+  isOpenAtStart: boolean,
+  dx: number,
+  sidebarWidth: number
+): number {
+  const base = isOpenAtStart ? sidebarWidth : 0;
+
+  return Math.max(0, Math.min(base + dx, sidebarWidth));
+}
+
+function isSwipeExpanding(
+  translateX: number,
+  sidebarWidth: number,
+  idleTime: number,
+  movement: number
+): boolean {
+  const isStandingStill =
+    idleTime > swipeIdleThreshold || Math.abs(movement) < swipeMinMovement;
+
+  return isStandingStill ? translateX > sidebarWidth / 2 : movement > 0;
+}
+
+type SwipeState = "idle" | "measuring" | "horizontal" | "vertical";
