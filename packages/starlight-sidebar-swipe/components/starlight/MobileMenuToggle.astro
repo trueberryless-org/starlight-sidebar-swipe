@@ -105,7 +105,7 @@ import { Icon } from "@astrojs/starlight/components";
       transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
       z-index: 6;
     }
-    :root[data-has-sidebar] .sidebar-pane {
+    :root[data-has-sidebar]:has(starlight-menu-button:defined) .sidebar-pane {
       display: block;
     }
   }
