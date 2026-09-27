@@ -1,5 +1,43 @@
 # starlight-sidebar-swipe
 
+## 0.4.0
+
+### Minor Changes
+
+- [#79](https://github.com/trueberryless-org/starlight-sidebar-swipe/pull/79) [`7dab92a`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/7dab92a9fd24fe65ec0bf591e6a169cc79f8aa83) Thanks [@trueberryless-bot](https://github.com/trueberryless-bot)! - Adds support for Astro v7, drops support for Astro v6.
+  
+  ⚠️ **BREAKING CHANGE:** The minimum supported version of Starlight is now `0.42.0`.
+  
+  Please follow the [upgrade guide](https://github.com/withastro/starlight/releases/tag/%40astrojs%2Fstarlight%400.42.0) to update your project.
+
+- [#79](https://github.com/trueberryless-org/starlight-sidebar-swipe/pull/79) [`7dab92a`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/7dab92a9fd24fe65ec0bf591e6a169cc79f8aa83) Thanks [@trueberryless-bot](https://github.com/trueberryless-bot)! - Adds a `starlight-sidebar-swipe/components/MobileMenuToggle.astro` component export to render the plugin mobile menu toggle in a custom `MobileMenuToggle` component override.
+  
+  See the [component overrides documentation](https://starlight-sidebar-swipe.netlify.app/getting-started/#component-overrides) for more information.
+
+- [#79](https://github.com/trueberryless-org/starlight-sidebar-swipe/pull/79) [`7dab92a`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/7dab92a9fd24fe65ec0bf591e6a169cc79f8aa83) Thanks [@trueberryless-bot](https://github.com/trueberryless-bot)! - Improves the swipe gesture to feel more natural, similar to the Discord mobile app:
+  
+  - The page content now follows the finger 1:1 without any delay while swiping.
+  - Fast flicks open or close the sidebar based on the swipe velocity, while slow swipes open or close it based on how far the page content was dragged.
+  - The page content settles with a speed matching the swipe velocity instead of a fixed duration.
+  - Swiping during an ongoing open or close animation now continues from the current position instead of jumping.
+  - Users who prefer reduced motion no longer see the settle animation.
+
+### Patch Changes
+
+- [#79](https://github.com/trueberryless-org/starlight-sidebar-swipe/pull/79) [`7dab92a`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/7dab92a9fd24fe65ec0bf591e6a169cc79f8aa83) Thanks [@trueberryless-bot](https://github.com/trueberryless-bot)! - Fixes the mobile menu staying expanded when resizing the viewport to a desktop size and the mobile menu styles being applied at the exact desktop breakpoint.
+
+- [#79](https://github.com/trueberryless-org/starlight-sidebar-swipe/pull/79) [`7dab92a`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/7dab92a9fd24fe65ec0bf591e6a169cc79f8aa83) Thanks [@trueberryless-bot](https://github.com/trueberryless-bot)! - Fixes the sidebar opening instead of scrolling when swiping horizontally inside scrollable elements, e.g. overflowing tabs or code blocks. The sidebar swipe gesture is now only used when the swiped element cannot scroll further in the swipe direction.
+
+- [#79](https://github.com/trueberryless-org/starlight-sidebar-swipe/pull/79) [`7dab92a`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/7dab92a9fd24fe65ec0bf591e6a169cc79f8aa83) Thanks [@trueberryless-bot](https://github.com/trueberryless-bot)! - Refactors internal logic to small pure functions for improved maintainability.
+
+- [#79](https://github.com/trueberryless-org/starlight-sidebar-swipe/pull/79) [`7dab92a`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/7dab92a9fd24fe65ec0bf591e6a169cc79f8aa83) Thanks [@trueberryless-bot](https://github.com/trueberryless-bot)! - Improves accessibility of the mobile menu:
+  
+  - The collapsed sidebar is no longer reachable with the keyboard or exposed to assistive technologies while it is hidden behind the page content.
+  - The page content is no longer reachable with the keyboard while the mobile menu is expanded.
+  - The mobile menu toggle button now exposes its expanded state with the `aria-expanded` attribute.
+
+- [#79](https://github.com/trueberryless-org/starlight-sidebar-swipe/pull/79) [`7dab92a`](https://github.com/trueberryless-org/starlight-sidebar-swipe/commit/7dab92a9fd24fe65ec0bf591e6a169cc79f8aa83) Thanks [@trueberryless-bot](https://github.com/trueberryless-bot)! - Fixes the mobile menu toggle not opening the sidebar when JavaScript fails or is disabled.
+
 ## 0.3.2
 
 ### Patch Changes
