@@ -1,6 +1,6 @@
 {
   "name": "starlight-sidebar-swipe",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "license": "MIT",
   "description": "Starlight plugin to make the sidebar swipeable on mobile devices like Discord Mobile.",
   "author": "trueberryless <trueberryless@gmail.com> (https://felixs.dev)",
