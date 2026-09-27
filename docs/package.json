@@ -1,19 +1,10 @@
 {
   "name": "starlight-sidebar-swipe-docs",
   "version": "0.0.3",
-  "private": true,
-  "description": "Make sidebar swipeable on mobile devices like Discord Mobile.",
-  "homepage": "https://starlight-sidebar-swipe.netlify.app/",
-  "bugs": {
-    "url": "https://github.com/trueberryless-org/starlight-sidebar-swipe/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/trueberryless-org/starlight-sidebar-swipe.git",
-    "directory": "docs"
-  },
   "license": "MIT",
+  "description": "Documentation for the Starlight Sidebar Swipe plugin.",
   "author": "trueberryless <trueberryless@gmail.com> (https://felixs.dev)",
+  "private": true,
   "type": "module",
   "scripts": {
     "astro": "astro",
@@ -23,16 +14,22 @@
     "start": "astro dev"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.41.10",
-    "@trueberryless-org/starlight-plugins-docs-components": "^0.6.0",
-    "astro": "^7.2.9",
+    "@astrojs/starlight": "^0.42.4",
+    "@trueberryless-org/starlight-plugins-docs-components": "^0.7.0",
+    "astro": "^7.3.5",
     "astro-contributors": "^0.9.0",
     "sharp": "^0.35.4",
-    "starlight-links-validator": "^0.25.3",
+    "starlight-links-validator": "^0.26.0",
     "starlight-sidebar-swipe": "workspace:*"
   },
-  "packageManager": "pnpm@11.1.2",
   "engines": {
-    "node": "^18.17.1 || ^20.3.0 || >=21.0.0"
-  }
+    "node": ">=22.12.0"
+  },
+  "homepage": "https://starlight-sidebar-swipe.netlify.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trueberryless-org/starlight-sidebar-swipe.git",
+    "directory": "docs"
+  },
+  "bugs": "https://github.com/trueberryless-org/starlight-sidebar-swipe/issues"
 }
