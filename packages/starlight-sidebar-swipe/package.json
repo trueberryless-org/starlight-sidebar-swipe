@@ -1,9 +1,31 @@
 {
   "name": "starlight-sidebar-swipe",
   "version": "0.4.0",
-  "license": "MIT",
   "description": "Starlight plugin to make the sidebar swipeable on mobile devices like Discord Mobile.",
+  "keywords": [
+    "starlight",
+    "plugin",
+    "sidebar",
+    "swipe",
+    "mobile",
+    "discord",
+    "documentation",
+    "astro",
+    "withastro",
+    "astro-integration"
+  ],
+  "homepage": "https://starlight-sidebar-swipe.netlify.app/",
+  "bugs": {
+    "url": "https://github.com/trueberryless-org/starlight-sidebar-swipe/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/trueberryless-org/starlight-sidebar-swipe.git",
+    "directory": "packages/starlight-sidebar-swipe"
+  },
+  "license": "MIT",
   "author": "trueberryless <trueberryless@gmail.com> (https://felixs.dev)",
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": "./index.ts",
@@ -23,25 +45,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "sideEffects": false,
-  "keywords": [
-    "starlight",
-    "plugin",
-    "sidebar",
-    "swipe",
-    "mobile",
-    "discord",
-    "documentation",
-    "astro",
-    "withastro",
-    "astro-integration"
-  ],
-  "homepage": "https://starlight-sidebar-swipe.netlify.app",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/trueberryless-org/starlight-sidebar-swipe.git",
-    "directory": "packages/starlight-sidebar-swipe"
-  },
-  "bugs": "https://github.com/trueberryless-org/starlight-sidebar-swipe/issues"
+  }
 }
